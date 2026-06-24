@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizServer", "QuizServer\QuizServer.csproj", "{715863F7-9B29-426E-B12A-9A75C5CDCB53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizClient", "QuizClient\QuizClient.csproj", "{F43AC4AA-DDAC-4B2E-AC43-3DFC680AAD77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{715863F7-9B29-426E-B12A-9A75C5CDCB53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{715863F7-9B29-426E-B12A-9A75C5CDCB53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{715863F7-9B29-426E-B12A-9A75C5CDCB53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{715863F7-9B29-426E-B12A-9A75C5CDCB53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F43AC4AA-DDAC-4B2E-AC43-3DFC680AAD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F43AC4AA-DDAC-4B2E-AC43-3DFC680AAD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F43AC4AA-DDAC-4B2E-AC43-3DFC680AAD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F43AC4AA-DDAC-4B2E-AC43-3DFC680AAD77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
