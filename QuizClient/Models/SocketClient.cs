@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,27 +9,31 @@ namespace QuizClient.Models;
 
 public class SocketClient
 {
-    private TcpClient _client { get; set; }
+    private HttpClient _client { get; set; }
 
     public SocketClient()
     {
-        _client = new TcpClient("127.0.0.1", 6969);
+        _client = new HttpClient();
+        
         Console.WriteLine("Client created");
     }
 
-    public void Close()
+    public async Task<HttpResponseMessage> SendMessageAsync(string message)
     {
-        _client.Close();
-        Console.WriteLine("Client closed");
+        HttpRequestMessage request = new HttpRequestMessage();
+        request.Content = new StringContent(message, Encoding.ASCII);
+        request.Method = new HttpMethod("POST");
+        request.RequestUri = new Uri("http://localhost:6969/");
+        Console.WriteLine($"Sent the message '{message}' to the server");
+        HttpResponseMessage responseMessage = await _client.SendAsync(request);
+        return responseMessage;
     }
 
-    public async Task<string> ReadMessageAsync()
+    public async Task<string> GetResponseContent(HttpResponseMessage responseMessage)
     {
-        NetworkStream stream = _client.GetStream();
-        byte[] bytes = new byte[1024];
-        await stream.ReadAsync(bytes, 0, bytes.Length);
-        string message = Encoding.ASCII.GetString(bytes);
-        Console.WriteLine($"Read message: {message}");
+        string message = await responseMessage.Content.ReadAsStringAsync();
         return message;
     }
+    
+    
 }

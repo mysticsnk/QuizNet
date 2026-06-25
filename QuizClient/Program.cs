@@ -15,10 +15,10 @@ sealed class Program
     public static async Task Main(string[] args)
     {
         SocketClient client = new SocketClient();
-        string message = await client.ReadMessageAsync();
-        Console.WriteLine(message);
-        string secondMessage = await client.ReadMessageAsync();
-        Console.WriteLine(secondMessage);
+        string message = "Hello frogs";
+        Console.WriteLine($"Sending message '{message}'");
+        string response = await client.GetResponseContent(await client.SendMessageAsync(message));
+        Console.WriteLine(response);
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);

@@ -15,8 +15,7 @@ sealed class Program
     {
         var server = new SocketServer();
         server.Start();
-        await server.AcceptClientAsync();
-        await server.BroadcastMessageAsync("Hello frogs");
+        await server.HandleMessageAsync();
         server.Stop();
         
         BuildAvaloniaApp()
