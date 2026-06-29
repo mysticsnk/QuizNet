@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using FluentValidation;
 using QuizServer.Models.Helpers;
 using QuizServer.Models.Helpers.Password;
@@ -7,46 +9,27 @@ namespace QuizServer.Models.UserRelevant;
 
 public class UserAccount
 {
+    public Guid Id { get; set; }
+    
+    [MaxLength(200)]
     public string UserName { get; set; }
     
-    public PasswordValidator PasswordValidator { get; set; }
-    
-    public string Password
-    {
-        get;
-        set
-        {
-            PasswordValidator.ValidateAndThrow(value);
-            
-        }
-    }
+    [MaxLength(20)]
+    public string Password { get; set; }
 
-    public string Email
-    {
-        get;
-        set
-        {
-            if (!EmailValidator.IsValidEmail(value))
-            {
-                throw new ArgumentException("Invalid email");
-            }
+    [MaxLength(100)]
+    public string Email { get; set; }
 
-            field = value;
-        }
-    }
-
-    public UserAccount(string userName, string password)
+    public UserAccount(string userName, string email, string password)
     {
         UserName = userName;
-        
-        PasswordValidator = new PasswordValidator();
-        try
-        {
-            Password = password;
-        }
-        catch (ValidationException ex)
-        {
-            Console.WriteLine($"Invalid password: {ex.Message}");
-        }
+        Email = email;
+        Password = password;
+        Id = Guid.NewGuid();
+    }
+
+    public override string ToString()
+    {
+        return $"{UserName} : {Email}";
     }
 }
