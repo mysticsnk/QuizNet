@@ -17,11 +17,7 @@
 
     <StackPanel>
         <Grid>
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Text="{Binding Port}">
-            </TextBlock>
+            
         </Grid>
     </StackPanel>
     

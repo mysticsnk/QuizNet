@@ -9,12 +9,9 @@ namespace QuizServer.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase 
 {
-    [ObservableProperty]
-    public partial string Port { get; set; }
 
-    public MainWindowViewModel(IPortResolver portResolver)
+    public MainWindowViewModel()
     {
-        Port = portResolver.GetPort();
     }
 }
 

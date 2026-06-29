@@ -15,17 +15,10 @@ using QuizServer.Models.Interfaces;
 namespace QuizServer;
 
 public partial class  App : Application
-{
-    public static IServiceProvider ServiceProvider { get; private set; }
-    
+{   
     public override void Initialize()
     {
-        HostApplicationBuilder builder = Host.CreateApplicationBuilder();
-
-        builder.Services.AddSingleton<IPortResolver, SpecificPortResolver>();
-        IHost host = builder.Build();
-        host.RunAsync();
-        ServiceProvider = host.Services;
+        
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -35,7 +28,7 @@ public partial class  App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(ServiceProvider.GetRequiredService<IPortResolver>()),
+                DataContext = Program.AppHost.Services.GetRequiredService<MainWindowViewModel>()
             };
         }
 
