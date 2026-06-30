@@ -9,10 +9,14 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class SingleChoiceQuestion : Question
 {
-    public List<QuestionOption> Options { get; set; } = new ();
 
-    public SingleChoiceQuestion(List<QuestionOption> options, string? title = null, Bitmap? image = null, int pointsWeight = 100)
-    : base(title, image, pointsWeight)
+    public SingleChoiceQuestion() : base()
+    {
+        
+    }
+    
+    public SingleChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100)
+    : base(title, imageBytes, pointsWeight)
     {
         int correctOptionsCount = options.Count(op => op.IsCorrect);
         if (correctOptionsCount == 0)

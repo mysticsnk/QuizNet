@@ -1,9 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.Helpers;
 using QuizServer.Models.Helpers.Password;
+using QuizServer.Models.Services.Interfaces;
 
 namespace QuizServer.Models.UserRelevant;
 
@@ -15,16 +20,21 @@ public class UserAccount
     public string UserName { get; set; }
     
     [MaxLength(20)]
-    public string Password { get; set; }
-
+    public string PasswordHash { get; private set; }
+    
     [MaxLength(100)]
     public string Email { get; set; }
 
-    public UserAccount(string userName, string email, string password)
+    private UserAccount()
+    {
+        Id = Guid.NewGuid();
+    }
+
+    public UserAccount(string userName, string email, string passwordHash)
     {
         UserName = userName;
         Email = email;
-        Password = password;
+        PasswordHash = passwordHash;
         Id = Guid.NewGuid();
     }
 

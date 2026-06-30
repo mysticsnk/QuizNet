@@ -6,11 +6,11 @@ namespace QuizServer.Models.Services;
 
 public class UserValidationService
 {
-    private PasswordValidator _passwordValidator { get; set; }
+    private PasswordValidationService PasswordValidationService { get; set; }
 
-    public UserValidationService(PasswordValidator passwordValidator)
+    public UserValidationService(PasswordValidationService passwordValidationService)
     {
-        _passwordValidator = passwordValidator;
+        PasswordValidationService = passwordValidationService;
     }
     
     public bool IsValidEmail(string email)
@@ -35,7 +35,7 @@ public class UserValidationService
 
     public bool IsValidPassword(string password)
     {
-        ValidationResult result = _passwordValidator.Validate(password);
+        ValidationResult result = PasswordValidationService.Validate(password);
         if (result.IsValid) return true;
         
         foreach (ValidationFailure error in result.Errors)

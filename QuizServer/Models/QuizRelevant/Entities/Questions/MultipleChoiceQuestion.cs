@@ -9,10 +9,13 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class MultipleChoiceQuestion : Question
 {
-    public List<QuestionOption> Options { get; set; } = new ();
+    public MultipleChoiceQuestion() : base()
+    {
+        
+    }
 
-    public MultipleChoiceQuestion(List<QuestionOption> options, string? title = null, Bitmap? image = null, int pointsWeight = 100) 
-    :base(title, image, pointsWeight)
+    public MultipleChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100) 
+    :base(title, imageBytes, pointsWeight)
     {
         int correctOptionsCount = options.Count(op => op.IsCorrect);
         if (correctOptionsCount == 0)

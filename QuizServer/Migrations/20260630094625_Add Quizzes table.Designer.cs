@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizServer.Models.DatabaseRelevant.Entities;
 
@@ -10,9 +11,11 @@ using QuizServer.Models.DatabaseRelevant.Entities;
 namespace QuizServer.Migrations
 {
     [DbContext(typeof(QuizDbContext))]
-    partial class QuizDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260630094625_Add Quizzes table")]
+    partial class AddQuizzestable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -29,7 +32,13 @@ namespace QuizServer.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("MultipleChoiceQuestionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("QuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SingleChoiceQuestionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TextContent")
@@ -37,7 +46,11 @@ namespace QuizServer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MultipleChoiceQuestionId");
+
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("SingleChoiceQuestionId");
 
                     b.ToTable("QuestionOptions");
                 });
@@ -46,10 +59,6 @@ namespace QuizServer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -103,7 +112,7 @@ namespace QuizServer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
@@ -134,11 +143,19 @@ namespace QuizServer.Migrations
 
             modelBuilder.Entity("QuizServer.Models.Entities.QuizRelevant.QuestionOption", b =>
                 {
-                    b.HasOne("QuizServer.Models.QuizRelevant.Abstracts.Question", "Question")
+                    b.HasOne("QuizServer.Models.QuizRelevant.Entities.Questions.MultipleChoiceQuestion", null)
                         .WithMany("Options")
+                        .HasForeignKey("MultipleChoiceQuestionId");
+
+                    b.HasOne("QuizServer.Models.QuizRelevant.Abstracts.Question", "Question")
+                        .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("QuizServer.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", null)
+                        .WithMany("Options")
+                        .HasForeignKey("SingleChoiceQuestionId");
 
                     b.Navigation("Question");
                 });
@@ -159,7 +176,12 @@ namespace QuizServer.Migrations
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Abstracts.Question", b =>
+            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Entities.Questions.MultipleChoiceQuestion", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", b =>
                 {
                     b.Navigation("Options");
                 });

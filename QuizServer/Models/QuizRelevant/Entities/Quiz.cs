@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using QuizServer.Models.QuizRelevant.Abstracts;
@@ -7,10 +8,19 @@ namespace QuizServer.Models.Entities.QuizRelevant;
 
 public class  Quiz
 {
+    public string Title { get; set; }
+    public Guid Id { get; set; }
     public List<Question> Questions { get; set; } = new();
 
-    public Quiz(List<Question> questions)
+    public Quiz()
     {
+        Id = Guid.NewGuid();
+    }
+    
+    public Quiz(string title, List<Question> questions)
+    {
+        Id = Guid.NewGuid();
+        Title = title;
         Questions = questions;
     }
 

@@ -6,9 +6,9 @@ namespace QuizServer.Models.Helpers.Password;
 
 using FluentValidation;
 
-public class PasswordValidator : AbstractValidator<string>
+public class PasswordValidationService : AbstractValidator<string>
 {
-    public PasswordValidator()
+    public PasswordValidationService()
     {
         // Password cannot be null or empty
         RuleFor(password => password)

@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +9,12 @@ using Microsoft.Extensions.Hosting;
 using QuizServer.Models.DatabaseRelevant.Entities;
 using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities;
+using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.Helpers.Password;
 using QuizServer.Models.Interfaces;
+using QuizServer.Models.QuizRelevant.Entities.Questions;
 using QuizServer.Models.Services;
+using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
 using QuizServer.ViewModels;
 
@@ -36,42 +40,47 @@ sealed class Program
 
         UserValidationService userValidationService = AppHost.Services.GetRequiredService<UserValidationService>();
         IUserRepository userRepository = AppHost.Services.GetRequiredService<IUserRepository>();
-
-        Console.WriteLine("Enter username:");
-        string userName = "Bogdan";
+        IQuizRepository quizRepository = AppHost.Services.GetRequiredService<IQuizRepository>();
+        IUserRegistrationService registrationService = AppHost.Services.GetRequiredService<IUserRegistrationService>();
         
-        Console.WriteLine("Enter email:");
-        string email = "mi@gmail.com";
-        if (!userValidationService.IsValidEmail(email))
+        Console.WriteLine("Registering user...");
+
+        await registrationService.RegisterAsync(
+            "Bogdan",
+            "bogdan@test.com",
+            "SuperSecret123");
+
+        Console.WriteLine("User registered!");
+
+        Console.WriteLine();
+
+        Console.WriteLine("All users in database:");
+
+        List<UserAccount> users = await userRepository.GetAllUsersAsync();
+
+        foreach (UserAccount user in users)
         {
-            Console.WriteLine("Invalid email");
-            Environment.Exit(1);
-        }
-        
-        Console.WriteLine("Enter password:");
-        string password = "SuperMario";
-        if (!userValidationService.IsValidPassword(password))
-        {
-            Console.WriteLine("Invalid password");
-            Environment.Exit(1);
-        }
-
-        UserAccount user = new UserAccount(userName, email, password);
-
-        Guid id = user.Id;
-
-        await userRepository.CreateAsync(user);
-        Console.WriteLine("Created user successfully!");
-
-        UserAccount? foundUser = await userRepository.GetUserByGuidAsync(id);
-
-        if (foundUser == null)
-        {
-            Console.WriteLine("User wasn't found!");
-            Environment.Exit(1);
+            Console.WriteLine($"Username: {user.UserName}");
+            Console.WriteLine($"Email: {user.Email}");
+            Console.WriteLine($"Password hash: {user.PasswordHash}");
+            Console.WriteLine();
         }
 
-        Console.WriteLine(foundUser);
+        Console.WriteLine("Trying to verify password...");
+
+        try
+        {
+            await registrationService.VerifyAsync(
+                "Bogdan",
+                "bogdan@test.com",
+                "SuperSecret123");
+
+            Console.WriteLine("Password verified!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -90,9 +99,12 @@ sealed class Program
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<PasswordValidator>();
+        services.AddTransient<PasswordValidationService>();
         services.AddTransient<UserValidationService>();
         services.AddTransient<IUserRepository, SqliteUserRepository>();
+        services.AddTransient<IQuizRepository, SqliteQuizRepository>();
+        services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
+        services.AddTransient<IUserRegistrationService, UserRegistrationService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();

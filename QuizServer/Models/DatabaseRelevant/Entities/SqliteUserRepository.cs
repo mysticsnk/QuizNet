@@ -35,7 +35,7 @@ public class SqliteUserRepository : IUserRepository
 
     public async Task<bool> DeleteAsync(Guid guid)
     {
-        UserAccount? user = await _context.UserAccounts.FirstOrDefaultAsync(user => user.Id == guid);
+        UserAccount? user = await GetUserByGuidAsync(guid);
         if (user == null) return false;
         
         _context.UserAccounts.Remove(user);
