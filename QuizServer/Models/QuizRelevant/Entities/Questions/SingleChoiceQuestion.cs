@@ -9,7 +9,7 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class SingleChoiceQuestion : Question
 {
-
+    public List<QuestionOption> Options { get; set; } = new ();
     public SingleChoiceQuestion() : base()
     {
         

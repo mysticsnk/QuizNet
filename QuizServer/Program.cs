@@ -17,6 +17,7 @@ using QuizServer.Models.Services;
 using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
 using QuizServer.ViewModels;
+using Host = QuizServer.Models.SessionRelevant.Host;
 
 namespace QuizServer;
 
@@ -29,58 +30,26 @@ sealed class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
-        AppHost = Host.CreateDefaultBuilder(args)
+        AppHost = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
                 ConfigureServices(services);
             })
             .Build();
         
-        SocketServer server = AppHost.Services.GetRequiredService<SocketServer>();
-
-        UserValidationService userValidationService = AppHost.Services.GetRequiredService<UserValidationService>();
-        IUserRepository userRepository = AppHost.Services.GetRequiredService<IUserRepository>();
-        IQuizRepository quizRepository = AppHost.Services.GetRequiredService<IQuizRepository>();
-        IUserRegistrationService registrationService = AppHost.Services.GetRequiredService<IUserRegistrationService>();
         
-        Console.WriteLine("Registering user...");
-
-        await registrationService.RegisterAsync(
-            "Bogdan",
-            "bogdan@test.com",
-            "SuperSecret123");
-
-        Console.WriteLine("User registered!");
-
-        Console.WriteLine();
-
-        Console.WriteLine("All users in database:");
-
-        List<UserAccount> users = await userRepository.GetAllUsersAsync();
-
-        foreach (UserAccount user in users)
-        {
-            Console.WriteLine($"Username: {user.UserName}");
-            Console.WriteLine($"Email: {user.Email}");
-            Console.WriteLine($"Password hash: {user.PasswordHash}");
-            Console.WriteLine();
-        }
-
-        Console.WriteLine("Trying to verify password...");
-
-        try
-        {
-            await registrationService.VerifyAsync(
-                "Bogdan",
-                "bogdan@test.com",
-                "SuperSecret123");
-
-            Console.WriteLine("Password verified!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+        UserAccount account = new UserAccount(
+            "MysticSNKhost",
+            "mystic@example.com",
+            "dummyHash"
+        );
+        
+        Host host = new Host(account);
+        host.Start();
+        await host.AcceptClientAsync();
+        await host.ReceiveAnswerAsync();
+        
+        
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -105,6 +74,7 @@ sealed class Program
         services.AddTransient<IQuizRepository, SqliteQuizRepository>();
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
         services.AddTransient<IUserRegistrationService, UserRegistrationService>();
+        services.AddTransient<SocketServer>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();

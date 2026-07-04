@@ -81,10 +81,10 @@ public class SocketServer
             {
                 throw new WebSocketException("WS closed");
             }
-            await memoryStream.WriteAsync(buffer.Array, 0, buffer.Count);
+            await memoryStream.WriteAsync(buffer.Array, 0, result.Count);
         } while (!result.EndOfMessage);
 
-        string message = Encoding.ASCII.GetString(buffer.Array);
+        string message = Encoding.UTF8.GetString(memoryStream.ToArray());
         Console.WriteLine($"Received the message {message} from a client");
         return message;
     }
@@ -116,7 +116,7 @@ public class SocketServer
     {
         try
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(message);
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
             await ws.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text,
                 WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
         }

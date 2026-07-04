@@ -12,8 +12,6 @@ public abstract class Question
     public Quiz Quiz { get; set; }
     public string Title { get; set; } = string.Empty;
     
-    public List<QuestionOption> Options { get; set; } = new ();
-    
     public byte[]? ImageBytes { get; init; }
 
     public int PointsWeight { get; set; } = 100;
