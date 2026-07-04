@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizClient.Models;
+using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.DatabaseRelevant.Entities;
 using QuizClient.Models.DatabaseRelevant.Interfaces;
 using QuizClient.Models.Entities;
@@ -90,25 +91,27 @@ sealed class Program
             }
         );
         
-        UserAccount account = new UserAccount(
-            "MysticSNK",
+        UserAccount clientAcc1 = new UserAccount(
+            "MysticSNKclient1",
+            "mystic@example.com",
+            "dummyHash"
+        );
+        
+        UserAccount clientAcc2 = new UserAccount(
+            "MysticSNKclient2",
             "mystic@example.com",
             "dummyHash"
         );
 
-        Participant participant = new Participant(
-            account.UserName,
-            account
-        );
+        Participant participant1 = new Participant("participant1", clientAcc1);
+        Participant participant2 = new Participant("participant2", clientAcc2);
 
-        if (quiz.Questions[0] is SingleChoiceQuestion singleChoiceQuestion)
-        {
-            SingleChoiceAnswer singleChoiceAnswer = new SingleChoiceAnswer(participant.Id, quiz.Questions[0].Id,
-                singleChoiceQuestion.Options[0].Id);
-            await participant.SendAnswerAsync(singleChoiceAnswer);
-        }
+        ClientLoginMessage loginMessage =
+            new ClientLoginMessage("MysticSNKclient1", "mystic@example.com", "dummyHash");
+
+        await participant1._socketClient.ConnectToServerAsync();
         
-        
+        await participant1._socketClient.SendMessageAsync(loginMessage);
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -135,6 +138,7 @@ sealed class Program
         services.AddTransient<IUserRegistrationService, UserRegistrationService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
+        services.AddSingleton<SocketClient>();
         
         string connectionString =
             $"Data Source={Path.Combine(AppContext.BaseDirectory, "quiz.db")}";

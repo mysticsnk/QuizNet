@@ -2,9 +2,12 @@ using System;
 using System.IO;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
+using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizClient.Models.Interfaces;
 
 namespace QuizClient.Models;
@@ -12,13 +15,11 @@ namespace QuizClient.Models;
 public class SocketClient
 {
     private ClientWebSocket _clientSocket { get; set; }
-    public string UserName { get; set; }
     public IPortResolver _portResolver { get; set; }
     public bool IsConnected { get; private set; } = false;
 
-    public SocketClient(string userName, IPortResolver portResolver)
+    public SocketClient(IPortResolver portResolver)
     {
-        UserName = userName;
         _portResolver = portResolver;
         _clientSocket = new ClientWebSocket();
         
@@ -28,7 +29,7 @@ public class SocketClient
     public async Task ConnectToServerAsync()
     {
         string port = _portResolver.GetPort();
-        Uri serverUri = new Uri($"ws://localhost:{port}/ws?user={UserName}");
+        Uri serverUri = new Uri($"ws://localhost:{port}");
         try
         {
             await _clientSocket.ConnectAsync(serverUri, CancellationToken.None);
@@ -41,16 +42,45 @@ public class SocketClient
         IsConnected = true;
     }
 
-    public async Task<bool> SendMessageAsync(string message)
+    public async Task StartAcceptLoopAsync()
+    {
+        while (_clientSocket.State == WebSocketState.Open)
+        {
+            ServerMessage serverMessage = await ReceiveMessageAsync();
+
+            if (serverMessage is AccountMessage accountMessage)
+            {
+                Console.WriteLine("Received an account message");
+            }
+            else if (serverMessage is AnnouncementMessage announcementMessage)
+            {
+                Console.WriteLine("Received an announcement message");
+            }
+            else if (serverMessage is KickMessage kickMessage)
+            {
+                Console.WriteLine("Received a kick message");
+            }
+            else if (serverMessage is QuestionMessage questionMessage)
+            {
+                Console.WriteLine("Received a question message");
+            }
+            else
+            {
+                Console.WriteLine("Unknown message received");
+            }
+        }
+    }
+
+    public async Task<bool> SendMessageAsync(ClientMessage message)
     {
         if (_clientSocket.State == WebSocketState.Closed) return false;
 
-        Console.WriteLine($"Sent the message '{message}' to the server");
-        await SafeSendAsync(_clientSocket , message);
+        string messageJson = JsonSerializer.Serialize(message);
+        await SafeSendAsync(_clientSocket , messageJson);
         return true;
     }
 
-    public async Task<string> ReceiveMessageAsync()
+    public async Task<ServerMessage> ReceiveMessageAsync()
     {
         using MemoryStream memoryStream = new MemoryStream();
         WebSocketReceiveResult result;
@@ -67,8 +97,8 @@ public class SocketClient
             await memoryStream.WriteAsync(buffer.Array, 0, result.Count);
         } while (!result.EndOfMessage);
 
-        string message = Encoding.UTF8.GetString(memoryStream.ToArray());
-        Console.WriteLine($"Received the message {message} from the server");
+        string messageJson = Encoding.UTF8.GetString(memoryStream.ToArray());
+        ServerMessage message = JsonSerializer.Deserialize<ServerMessage>(messageJson);
 
         return message;
     }

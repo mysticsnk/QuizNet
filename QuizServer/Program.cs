@@ -43,13 +43,9 @@ sealed class Program
             "mystic@example.com",
             "dummyHash"
         );
-        
+
         Host host = new Host(account);
-        host.Start();
-        await host.AcceptClientAsync();
-        await host.ReceiveAnswerAsync();
-        
-        
+        await host.BeginAcceptingClients();
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -74,7 +70,9 @@ sealed class Program
         services.AddTransient<IQuizRepository, SqliteQuizRepository>();
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
         services.AddTransient<IUserRegistrationService, UserRegistrationService>();
-        services.AddTransient<SocketServer>();
+        services.AddTransient<IUserValidationService, UserValidationService>();
+        services.AddTransient<IHandleClientRegistrationService, DummyHandleClientRegistrationService>();
+        services.AddTransient<IHandleClientLoginService, DummyHandleClientLoginService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();

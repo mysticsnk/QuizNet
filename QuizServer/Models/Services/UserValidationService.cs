@@ -1,10 +1,13 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using FluentValidation.Results;
 using QuizServer.Models.Helpers.Password;
+using QuizServer.Models.Services.Interfaces;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace QuizServer.Models.Services;
 
-public class UserValidationService
+public class UserValidationService : IUserValidationService
 {
     private PasswordValidationService PasswordValidationService { get; set; }
 
@@ -40,7 +43,7 @@ public class UserValidationService
         
         foreach (ValidationFailure error in result.Errors)
         {
-            Console.WriteLine(error.ErrorMessage);
+            throw new ValidationException(error.ErrorMessage);
         }
 
         return false;

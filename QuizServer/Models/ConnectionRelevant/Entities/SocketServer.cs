@@ -4,11 +4,17 @@ using System.IO;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
+using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.Services.Interfaces;
+using QuizServer.Models.UserRelevant;
 
 namespace QuizServer;
 
@@ -25,11 +31,16 @@ public class SocketServer
         _serverSocket.Prefixes.Add($"http://localhost:{port}/");
     }
     
-    public void Start()
+    public async Task StartAsync()
     {
         _serverSocket.Start();
         
         Console.WriteLine("Server started!");
+
+        while (true)
+        {
+            await AcceptClientAsync();
+        }
     }
 
     public async Task AcceptClientAsync()
@@ -44,11 +55,41 @@ public class SocketServer
 
         WebSocketContext wsContext = await context.AcceptWebSocketAsync(subProtocol: null);
 
-        WebSocket ws = wsContext.WebSocket;
-        string? userName = context.Request.QueryString["user"];
+        ConnectedClient client = new ConnectedClient(wsContext.WebSocket);
         
-        Clients.Add(new ConnectedClient(ws, userName));
         Console.WriteLine("Server accepted a new client!");
+
+        _ = Task.Run(() => HandleClient(client));
+    }
+
+    private async Task HandleClient(ConnectedClient client)
+    {
+        while (client.Ws.State == WebSocketState.Open)
+        {
+            ClientMessage clientMessage = await ReceiveClientMessageAsync(client);
+            if (clientMessage is ClientRegisterMessage registerMessage)
+            {
+                IHandleClientRegistrationService registrationService =
+                    Program.AppHost.Services.GetRequiredService<IHandleClientRegistrationService>();
+
+                await registrationService.HandleAsync(registerMessage, client);
+            }
+            else if (clientMessage is ClientLoginMessage loginMessage)
+            {
+                IHandleClientLoginService loginService =
+                    Program.AppHost.Services.GetRequiredService<IHandleClientLoginService>();
+                
+                await loginService.HandleAsync(loginMessage, client);
+            }
+            else if (clientMessage is ClientAnswerMessage answerMessage)
+            {
+                
+            }
+            else
+            {
+                
+            }
+        }
     }
 
     public void Stop()
@@ -65,7 +106,7 @@ public class SocketServer
         Console.WriteLine("Server stopped!");
     }
     
-    public async Task<string> ReceiveMessageAsync(ConnectedClient client)
+    public async Task<ClientMessage> ReceiveClientMessageAsync(ConnectedClient client)
     {
         WebSocket ws = client.Ws;
         
@@ -84,22 +125,23 @@ public class SocketServer
             await memoryStream.WriteAsync(buffer.Array, 0, result.Count);
         } while (!result.EndOfMessage);
 
-        string message = Encoding.UTF8.GetString(memoryStream.ToArray());
-        Console.WriteLine($"Received the message {message} from a client");
+        string messageText = Encoding.UTF8.GetString(memoryStream.ToArray());
+        ClientMessage message = JsonSerializer.Deserialize<ClientMessage>(messageText);
         return message;
     }
     
-    public async Task<bool> SendMessageAsync(ConnectedClient client, string message)
+    public async Task<bool> SendMessageAsync(ConnectedClient client, ServerMessage message)
     {
         WebSocket ws = client.Ws;
         if (ws.State == WebSocketState.Closed) return false;
+
+        string jsonMessage = JsonSerializer.Serialize(message);
         
-        Console.WriteLine($"Sent the message '{message}' to the client {client.UserName}");
-        await SafeSendAsync(ws , message);
+        await SafeSendAsync(ws ,jsonMessage);
         return true;
     }
 
-    public async Task BroadcastMessageAsync(string message)
+    public async Task BroadcastMessageAsync(ServerMessage message)
     {
         List<Task> tasks = new List<Task>();
         

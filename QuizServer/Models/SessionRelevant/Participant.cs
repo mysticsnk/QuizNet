@@ -3,7 +3,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using QuizClient.Models;
-using QuizClient.Models.SessionRelevant.Answers;
+using QuizServer.Models;
+using QuizServer.Models.SessionRelevant.Answers;
 using QuizServer.Models.UserRelevant;
 
 namespace QuizServer.Models.SessionRelevant;
@@ -32,7 +33,7 @@ public class Participant
         _client = Program.AppHost.Services.GetRequiredService<SocketClient>();
     }
 
-    public async Task<bool> SendAnswerAsync(Answer answer)
+    /*public async Task<bool> SendAnswerAsync(Answer answer)
     {
         if (!_client.IsConnected)
         {
@@ -43,5 +44,5 @@ public class Participant
         bool isSent = await _client.SendMessageAsync(answerJson);
 
         return isSent;
-    }
+    }*/
 }
