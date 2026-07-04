@@ -7,14 +7,16 @@ using QuizClient.Models.QuizRelevant.Abstracts;
 
 namespace QuizClient.Models.QuizRelevant.Entities.Questions;
 
-public class MultipleChoiceQuestion : Question
+public class MultiChoiceQuestion : Question
 {
-    public MultipleChoiceQuestion() : base()
+    public List<QuestionOption> Options { get; set; } = new ();
+    
+    public MultiChoiceQuestion() : base()
     {
         
     }
 
-    public MultipleChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100) 
+    public MultiChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100) 
     :base(title, imageBytes, pointsWeight)
     {
         int correctOptionsCount = options.Count(op => op.IsCorrect);

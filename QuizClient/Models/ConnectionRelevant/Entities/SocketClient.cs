@@ -14,6 +14,7 @@ public class SocketClient
     private ClientWebSocket _clientSocket { get; set; }
     public string UserName { get; set; }
     public IPortResolver _portResolver { get; set; }
+    public bool IsConnected { get; private set; } = false;
 
     public SocketClient(string userName, IPortResolver portResolver)
     {
@@ -37,7 +38,7 @@ public class SocketClient
             Console.WriteLine($"Failed to connect to a server: {ex.Message}");
         }
 
-        Console.WriteLine("Connected to a server!");
+        IsConnected = true;
     }
 
     public async Task<bool> SendMessageAsync(string message)
@@ -63,10 +64,10 @@ public class SocketClient
             {
                 throw new WebSocketException("WS closed");
             }
-            await memoryStream.WriteAsync(buffer.Array, 0, buffer.Count);
+            await memoryStream.WriteAsync(buffer.Array, 0, result.Count);
         } while (!result.EndOfMessage);
 
-        string message = Encoding.ASCII.GetString(buffer.Array);
+        string message = Encoding.UTF8.GetString(memoryStream.ToArray());
         Console.WriteLine($"Received the message {message} from the server");
 
         return message;
@@ -76,7 +77,7 @@ public class SocketClient
     {
         try
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(message);
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
             await ws.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text,
                 WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
         }
@@ -84,6 +85,13 @@ public class SocketClient
         {
             Console.WriteLine($"Exception when sending: {ex.Message}");
         }
+    }
+
+    public async void DisconnectFromServerAsync()
+    {
+        await _clientSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Normal closure",
+            CancellationToken.None);
+        IsConnected = false;
     }
     
     

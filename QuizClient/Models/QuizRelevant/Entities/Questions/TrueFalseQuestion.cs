@@ -1,24 +1,30 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Media.Imaging;
 using QuizClient.Models.Entities.QuizRelevant;
 using QuizClient.Models.Exceptions;
 using QuizClient.Models.QuizRelevant.Abstracts;
 
 namespace QuizClient.Models.QuizRelevant.Entities.Questions;
 
-public class SingleChoiceQuestion : Question
+public class TrueFalseQuestion : Question
 {
-    public List<QuestionOption> Options { get; set; } = new ();
+    public List<QuestionOption> Options { get; set; }= new();
 
-    public SingleChoiceQuestion() : base()
+    public TrueFalseQuestion() : base()
     {
-        
     }
-    
-    public SingleChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100)
-    : base(title, imageBytes, pointsWeight)
+
+    public TrueFalseQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100)
+        : base(title, imageBytes, pointsWeight)
     {
+        Options = options;
+
+        if (options.Count != 2)
+        {
+            throw new InvalidOptionCountException($"Must be 2 options in a True/False question, got {options.Count}");
+        }
+        
         int correctOptionsCount = options.Count(op => op.IsCorrect);
         if (correctOptionsCount == 0)
         {
@@ -28,18 +34,5 @@ public class SingleChoiceQuestion : Question
         {
             throw new CorrectAnswerAmountException($"Expected 1 correct option. Got {correctOptionsCount}");
         }
-        
-        Options = options;
     }
-    
-    public void AddOption(QuestionOption option)
-    {
-        Options.Add(option);
-    }
-
-    public void DeleteOption(QuestionOption option)
-    {
-        Options.Remove(option);
-    }
-    
 }

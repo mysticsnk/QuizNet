@@ -24,8 +24,8 @@ public class SqliteQuizRepository : IQuizRepository
 
     public async Task<Quiz?> GetQuizByGuidAsync(Guid id)
     {
-        return await _context.Quizzes.Include(q => q.Questions).ThenInclude(question => question.Options).FirstOrDefaultAsync(q => q.Id == id);
-    }
+        return await _context.Quizzes.Include(q => q.Questions).FirstOrDefaultAsync(q => q.Id == id);
+    } 
 
     public async Task CreateAsync(Quiz quiz)
     {

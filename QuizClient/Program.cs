@@ -11,10 +11,15 @@ using QuizClient.Models;
 using QuizClient.Models.DatabaseRelevant.Entities;
 using QuizClient.Models.DatabaseRelevant.Interfaces;
 using QuizClient.Models.Entities;
+using QuizClient.Models.Entities.QuizRelevant;
 using QuizClient.Models.Helpers.Password;
 using QuizClient.Models.Interfaces;
+using QuizClient.Models.QuizRelevant.Abstracts;
+using QuizClient.Models.QuizRelevant.Entities.Questions;
 using QuizClient.Models.Services;
 using QuizClient.Models.Services.Interfaces;
+using QuizClient.Models.SessionRelevant;
+using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.UserRelevant;
 using QuizClient.ViewModels;
 
@@ -36,49 +41,74 @@ sealed class Program
             })
             .Build();
         
-        UserValidationService userValidationService = AppHost.Services.GetRequiredService<UserValidationService>();
-        IUserRepository userRepository = AppHost.Services.GetRequiredService<IUserRepository>();
-        IQuizRepository quizRepository = AppHost.Services.GetRequiredService<IQuizRepository>();
-        IUserRegistrationService registrationService = AppHost.Services.GetRequiredService<IUserRegistrationService>();
+        var quiz = new Quiz(
+            "General Knowledge Test",
+            new List<Question>
+            {
+                new SingleChoiceQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(true, "Paris"),
+                        new(false, "London"),
+                        new(false, "Berlin"),
+                        new(false, "Madrid")
+                    },
+                    "What is the capital of France?",
+                    pointsWeight: 100
+                ),
+
+                new MultiChoiceQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(true, "C#"),
+                        new(true, "Java"),
+                        new(false, "HTML"),
+                        new(false, "CSS")
+                    },
+                    "Which of the following are programming languages?",
+                    pointsWeight: 150
+                ),
+
+                new TrueFalseQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(false, "True"),
+                        new(true, "False")
+                    },
+                    "The Sun revolves around the Earth.",
+                    pointsWeight: 50
+                ),
+
+                new ShortTextQuestion(
+                    "Who developed the theory of relativity?",
+                    null,
+                    200,
+                    "Albert Einstein",
+                    false,
+                    "Type the scientist's name..."
+                )
+            }
+        );
         
-        Console.WriteLine("Registering user...");
+        UserAccount account = new UserAccount(
+            "MysticSNK",
+            "mystic@example.com",
+            "dummyHash"
+        );
 
-        await registrationService.RegisterAsync(
-            "Bogdan",
-            "bogdan@test.com",
-            "SuperSecret123");
+        Participant participant = new Participant(
+            account.UserName,
+            account
+        );
 
-        Console.WriteLine("User registered!");
-
-        Console.WriteLine();
-
-        Console.WriteLine("All users in database:");
-
-        List<UserAccount> users = await userRepository.GetAllUsersAsync();
-
-        foreach (UserAccount user in users)
+        if (quiz.Questions[0] is SingleChoiceQuestion singleChoiceQuestion)
         {
-            Console.WriteLine($"Username: {user.UserName}");
-            Console.WriteLine($"Email: {user.Email}");
-            Console.WriteLine($"Password hash: {user.PasswordHash}");
-            Console.WriteLine();
+            SingleChoiceAnswer singleChoiceAnswer = new SingleChoiceAnswer(participant.Id, quiz.Questions[0].Id,
+                singleChoiceQuestion.Options[0].Id);
+            await participant.SendAnswerAsync(singleChoiceAnswer);
         }
-
-        Console.WriteLine("Trying to verify password...");
-
-        try
-        {
-            await registrationService.VerifyAsync(
-                "Bogdan",
-                "bogdan@test.com",
-                "SuperSecret123");
-
-            Console.WriteLine("Password verified!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+        
+        
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);

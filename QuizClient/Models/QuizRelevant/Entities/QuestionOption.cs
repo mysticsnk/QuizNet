@@ -8,9 +8,10 @@ namespace QuizClient.Models.Entities.QuizRelevant;
 public class QuestionOption
 {
     public Guid Id { get; set; }
-    
-    public Guid QuestionId { get; set; }
-    public Question Question { get; set; }
+    [NonSerialized] 
+    public Guid QuestionId;
+    [NonSerialized]
+    public Question Question;
     public bool IsCorrect { get; init; }
 
     public string? TextContent { get; init; } = string.Empty;
