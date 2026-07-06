@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using QuizClient.Models;
 using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
+using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizClient.Models.DatabaseRelevant.Entities;
 using QuizClient.Models.DatabaseRelevant.Interfaces;
 using QuizClient.Models.Entities;
@@ -20,6 +21,7 @@ using QuizClient.Models.QuizRelevant.Abstracts;
 using QuizClient.Models.QuizRelevant.Entities.Questions;
 using QuizClient.Models.Services;
 using QuizClient.Models.Services.Interfaces;
+using QuizClient.Models.UserRelevant;
 using QuizClient.ViewModels;
 
 namespace QuizClient;
@@ -45,10 +47,7 @@ sealed class Program
         IPasswordHashingService hasher = AppHost.Services.GetRequiredService<IPasswordHashingService>();
         SocketClient client = AppHost.Services.GetRequiredService<SocketClient>();
         await client.ConnectToServerAsync();
-        Task.Run(async () =>
-        {
-            await client.StartAcceptLoopAsync();
-        });
+        _ = client.StartAcceptLoopAsync();
         
         string userName = "mystic@example.com";
         string email = "mystic@example.com";
@@ -56,36 +55,22 @@ sealed class Program
 
         string hash = hasher.Hash(password);
 
-        ClientRegistrationMessage registrationMessage = new ClientRegistrationMessage(userName, email, hash);
-        await client.SendMessageAsync(registrationMessage);
-        Thread.Sleep(500);
+        UserAccount account = await client.RegisterAsync(userName, email, hash);
         
         ClientState clientState = AppHost.Services.GetRequiredService<ClientState>();
-
-        int counter = 100;
-        while (clientState.Account == null)
-        {
-            await Task.Delay(100);
-            Console.WriteLine(counter);
-            counter += 100;
-        }
         
         Console.WriteLine(clientState.Account);
 
-        ClientJoinQuizMessage joinMessage = new ClientJoinQuizMessage("Gudli", "1234", clientState.Account);
-        await client.SendMessageAsync(joinMessage);
-        
-        
-        counter = 100;
-        while (clientState.CurrentSession == null)
-        {
-            await Task.Delay(100);
-            Console.WriteLine(counter);
-            counter += 100;
-        }
+        QuizJoinResultMessage resultMessage = await client.JoinQuizAsync("gudli", "1234", clientState.Account);
         
         Console.WriteLine(clientState.CurrentSession.Participant.UserName);
         
+        
+        // This pause is needed because all this synchronous test code causes a little bug
+        // Since BuildAvaloniaApp() is not called yet. 
+        // Avalonia itself warns us about this, saying preferably no synchronous code should be
+        // executed before Main(), so I will bet on this being the reason for the little bug
+        await Task.Delay(15000);
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

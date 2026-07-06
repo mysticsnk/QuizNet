@@ -1,17 +1,17 @@
 using System.Collections.Generic;
-using QuizClient.Models.UserRelevant;
+using QuizServer.Models.UserRelevant;
 
-namespace QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
+namespace QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
 
-public class AccountResultMessage : ServerMessage
+public class LoginResultMessage : ServerMessage
 {
     public bool IsSuccess { get; set; }
     public UserAccount? Account { get; set; }
     public List<string> Errors { get; set; } = new();
     
-    public AccountResultMessage() {}
+    public LoginResultMessage() {}
     
-    public AccountResultMessage(bool isSuccess, UserAccount? account = null, List<string>? errors = null)
+    public LoginResultMessage(bool isSuccess, UserAccount? account = null, List<string>? errors = null)
     {
         IsSuccess = isSuccess;
         Account = account;

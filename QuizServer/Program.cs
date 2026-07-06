@@ -106,10 +106,9 @@ sealed class Program
         
         await session.StartAsync();
 
-        await Task.Delay(5000);
+        await Task.Delay(10000);
         KickMessage kickMessage = new KickMessage("Cuz why not lol");
         await server.BroadcastMessageAsync(kickMessage);
-
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);

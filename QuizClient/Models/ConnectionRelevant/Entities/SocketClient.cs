@@ -10,6 +10,7 @@ using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizClient.Models.Interfaces;
+using QuizClient.Models.UserRelevant;
 
 namespace QuizClient.Models;
 
@@ -18,6 +19,10 @@ public class SocketClient
     private ClientWebSocket _clientSocket { get; set; }
     public IPortResolver _portResolver { get; set; }
     public bool IsConnected { get; private set; } = false;
+    
+    private TaskCompletionSource<UserAccount>? _pendingRegistration { get; set; }
+    private TaskCompletionSource<UserAccount>? _pendingLogin { get; set; }
+    private TaskCompletionSource<QuizJoinResultMessage>? _pendingJoin { get; set; }
 
     public SocketClient(IPortResolver portResolver)
     {
@@ -43,6 +48,45 @@ public class SocketClient
         IsConnected = true;
     }
 
+    public async Task<UserAccount> RegisterAsync(string userName, string email, string passwordHash)
+    {
+        TaskCompletionSource<UserAccount> tcs = new();
+
+        _pendingRegistration = tcs;
+        
+        ClientRegistrationMessage registrationMessage = new ClientRegistrationMessage(userName, email, passwordHash);
+        
+        await SendMessageAsync(registrationMessage);
+
+        return await tcs.Task;
+    }
+
+    public async Task<UserAccount> LoginAsync(string userName, string email, string passwordHash)
+    {
+        TaskCompletionSource<UserAccount> tcs = new();
+
+        _pendingLogin = tcs;
+
+        ClientLoginMessage loginMessage = new ClientLoginMessage(userName, email, passwordHash);
+
+        await SendMessageAsync(loginMessage);
+
+        return await tcs.Task;
+    }
+
+    public async Task<QuizJoinResultMessage> JoinQuizAsync(string userName, string pin, UserAccount? account = null)
+    {
+        TaskCompletionSource<QuizJoinResultMessage> tcs = new();
+
+        _pendingJoin = tcs;
+        
+        ClientJoinQuizMessage joinMessage = new ClientJoinQuizMessage(userName, pin, account);
+        
+        await SendMessageAsync(joinMessage);
+
+        return await tcs.Task;
+    }
+
     public async Task StartAcceptLoopAsync()
     {
         try
@@ -51,17 +95,34 @@ public class SocketClient
             {
                 ServerMessage serverMessage = await ReceiveMessageAsync();
 
-                if (serverMessage is AccountResultMessage accountMessage)
+                if (serverMessage is RegistrationResultMessage registrationMessage)
                 {
-                    if (accountMessage.IsSuccess)
+                    if (registrationMessage.IsSuccess)
                     {
                         ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
-                        clientState.Account = accountMessage.Account;
+                        clientState.Account = registrationMessage.Account;
+                        _pendingRegistration?.SetResult(registrationMessage.Account);
+                        _pendingRegistration = null;
                     }
                     else
                     {
                         // TODO: Create a property for MVVM that shows these errors
-                        Console.WriteLine(accountMessage.Errors);
+                        Console.WriteLine(registrationMessage.Errors);
+                    }
+                }
+                else if (serverMessage is LoginResultMessage loginMessage)
+                {
+                    if (loginMessage.IsSuccess)
+                    {
+                        ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                        clientState.Account = loginMessage.Account;
+                        _pendingLogin?.SetResult(loginMessage.Account);
+                        _pendingLogin = null;
+                    }
+                    else
+                    {
+                        // TODO: Create a property for MVVM that shows these errors
+                        Console.WriteLine(loginMessage.Errors);
                     }
                 }
                 else if (serverMessage is QuizJoinResultMessage joinResultMessage)
@@ -70,6 +131,8 @@ public class SocketClient
                     {
                         ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
                         clientState.CurrentSession = joinResultMessage.ClientQuizSession;
+                        _pendingJoin?.SetResult(joinResultMessage);
+                        _pendingJoin = null;
                     }
                     else
                     {

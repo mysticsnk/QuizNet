@@ -17,7 +17,7 @@ public class HandleClientLoginService : IHandleClientLoginService
             Program.AppHost.Services.GetRequiredService<IUserRegistrationService>();
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
         
-        AccountResultMessage serverMessage = new AccountResultMessage();
+        LoginResultMessage serverMessage = new LoginResultMessage();
 
 
         try

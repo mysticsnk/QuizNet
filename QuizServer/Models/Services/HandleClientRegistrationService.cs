@@ -27,7 +27,7 @@ public class HandleClientRegistrationService : IHandleClientRegistrationService
                 
         await registrationService.RegisterAsync(account.UserName, account.Email, account.PasswordHash);
                 
-        AccountResultMessage resultMessage = new AccountResultMessage(true, account);
+        RegistrationResultMessage resultMessage = new RegistrationResultMessage(true, account);
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
         await server.SendMessageAsync(client, resultMessage);
     }
