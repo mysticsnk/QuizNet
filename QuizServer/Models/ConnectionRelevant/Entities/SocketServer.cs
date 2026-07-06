@@ -11,10 +11,14 @@ using System.Threading.Tasks;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Models.AppRelevant;
 using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
+using ClientAnswerMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientAnswerMessage;
+using ClientLoginMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientLoginMessage;
+using ClientMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientMessage;
 
 namespace QuizServer;
 
@@ -58,36 +62,55 @@ public class SocketServer
         ConnectedClient client = new ConnectedClient(wsContext.WebSocket);
         
         Console.WriteLine("Server accepted a new client!");
+        Clients.Add(client);
 
         _ = Task.Run(() => HandleClient(client));
     }
 
     private async Task HandleClient(ConnectedClient client)
     {
-        while (client.Ws.State == WebSocketState.Open)
-        {
-            ClientMessage clientMessage = await ReceiveClientMessageAsync(client);
-            if (clientMessage is ClientRegisterMessage registerMessage)
+        try {
+            while (client.Ws.State == WebSocketState.Open)
             {
-                IHandleClientRegistrationService registrationService =
-                    Program.AppHost.Services.GetRequiredService<IHandleClientRegistrationService>();
+                ClientMessage clientMessage = await ReceiveClientMessageAsync(client);
+                if (clientMessage is ClientRegistrationMessage registrationMessage)
+                {
+                    IHandleClientRegistrationService registrationService =
+                        Program.AppHost.Services.GetRequiredService<IHandleClientRegistrationService>();
 
-                await registrationService.HandleAsync(registerMessage, client);
+                    await registrationService.HandleAsync(registrationMessage, client);
+                }
+                else if (clientMessage is ClientLoginMessage loginMessage)
+                {
+                    IHandleClientLoginService loginService =
+                        Program.AppHost.Services.GetRequiredService<IHandleClientLoginService>();
+
+                    await loginService.HandleAsync(loginMessage, client);
+                }
+                else if (clientMessage is ClientJoinQuizMessage joinQuizMessage)
+                {
+                    IHandleClientQuizJoinService quizJoinService =
+                        Program.AppHost.Services.GetRequiredService<IHandleClientQuizJoinService>();
+
+                    await quizJoinService.HandleAsync(joinQuizMessage, client);
+                }
+                else if (clientMessage is ClientAnswerMessage answerMessage)
+                {
+
+                }
+                else
+                {
+
+                }
             }
-            else if (clientMessage is ClientLoginMessage loginMessage)
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            if (ex.InnerException != null)
             {
-                IHandleClientLoginService loginService =
-                    Program.AppHost.Services.GetRequiredService<IHandleClientLoginService>();
-                
-                await loginService.HandleAsync(loginMessage, client);
-            }
-            else if (clientMessage is ClientAnswerMessage answerMessage)
-            {
-                
-            }
-            else
-            {
-                
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException);
             }
         }
     }

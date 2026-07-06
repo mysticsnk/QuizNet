@@ -6,18 +6,22 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QuizServer.Models.AppRelevant;
+using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizServer.Models.DatabaseRelevant.Entities;
 using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.Helpers.Password;
 using QuizServer.Models.Interfaces;
+using QuizServer.Models.QuizRelevant.Abstracts;
 using QuizServer.Models.QuizRelevant.Entities.Questions;
+using QuizServer.Models.QuizRelevant.Entities.QuizModes;
 using QuizServer.Models.Services;
 using QuizServer.Models.Services.Interfaces;
+using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.UserRelevant;
 using QuizServer.ViewModels;
-using Host = QuizServer.Models.SessionRelevant.Host;
 
 namespace QuizServer;
 
@@ -30,7 +34,7 @@ sealed class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
-        AppHost = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+        AppHost = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
                 ConfigureServices(services);
@@ -43,9 +47,69 @@ sealed class Program
             "mystic@example.com",
             "dummyHash"
         );
+        
+        var quiz = new Quiz(
+            "General Knowledge Test",
+            new List<Question>
+            {
+                new SingleChoiceQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(true, "Paris"),
+                        new(false, "London"),
+                        new(false, "Berlin"),
+                        new(false, "Madrid")
+                    },
+                    "What is the capital of France?",
+                    pointsWeight: 100
+                ),
 
-        Host host = new Host(account);
-        await host.BeginAcceptingClients();
+                new MultiChoiceQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(true, "C#"),
+                        new(true, "Java"),
+                        new(false, "HTML"),
+                        new(false, "CSS")
+                    },
+                    "Which of the following are programming languages?",
+                    pointsWeight: 150
+                ),
+
+                new TrueFalseQuestion(
+                    new List<QuestionOption>
+                    {
+                        new(false, "True"),
+                        new(true, "False")
+                    },
+                    "The Sun revolves around the Earth.",
+                    pointsWeight: 50
+                ),
+
+                new ShortTextQuestion(
+                    "Who developed the theory of relativity?",
+                    null,
+                    200,
+                    "Albert Einstein",
+                    false,
+                    "Type the scientist's name..."
+                )
+            }
+        );
+
+        SocketServer server = AppHost.Services.GetRequiredService<SocketServer>();
+        
+        Task serverTask = server.StartAsync();
+
+        AsynchronousQuizMode mode = new AsynchronousQuizMode();
+        ServerQuizSession session = new ServerQuizSession(quiz, "1234", mode);
+        
+        await session.StartAsync();
+
+        await Task.Delay(5000);
+        KickMessage kickMessage = new KickMessage("Cuz why not lol");
+        await server.BroadcastMessageAsync(kickMessage);
+
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -71,11 +135,13 @@ sealed class Program
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
         services.AddTransient<IUserRegistrationService, UserRegistrationService>();
         services.AddTransient<IUserValidationService, UserValidationService>();
-        services.AddTransient<IHandleClientRegistrationService, DummyHandleClientRegistrationService>();
-        services.AddTransient<IHandleClientLoginService, DummyHandleClientLoginService>();
+        services.AddTransient<IHandleClientRegistrationService, HandleClientRegistrationService>();
+        services.AddTransient<IHandleClientLoginService, HandleClientLoginService>();
+        services.AddTransient<IHandleClientQuizJoinService, HandleClientQuizJoinService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();
+        services.AddSingleton<ServerState>();
         
         string connectionString =
             $"Data Source={Path.Combine(AppContext.BaseDirectory, "quiz.db")}";

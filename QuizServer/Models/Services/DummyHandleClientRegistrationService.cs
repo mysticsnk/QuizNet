@@ -8,7 +8,7 @@ namespace QuizServer.Models.Services;
 
 public class DummyHandleClientRegistrationService : IHandleClientRegistrationService
 {
-    public Task HandleAsync(ClientRegisterMessage message, ConnectedClient client)
+    public Task HandleAsync(ClientRegistrationMessage message, ConnectedClient client)
     {
         return new Task(() => Console.WriteLine($"Got message from {message.UserName}"));
     }

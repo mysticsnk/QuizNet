@@ -7,15 +7,15 @@ using QuizServer.Models.QuizRelevant.Abstracts;
 
 namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
-public class MultipleChoiceQuestion : Question
+public class MultiChoiceQuestion : Question
 {
     public List<QuestionOption> Options { get; set; } = new ();
-    public MultipleChoiceQuestion() : base()
+    public MultiChoiceQuestion() : base()
     {
         
     }
 
-    public MultipleChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100) 
+    public MultiChoiceQuestion(List<QuestionOption> options, string? title = null, byte[]? imageBytes = null, int pointsWeight = 100) 
     :base(title, imageBytes, pointsWeight)
     {
         int correctOptionsCount = options.Count(op => op.IsCorrect);

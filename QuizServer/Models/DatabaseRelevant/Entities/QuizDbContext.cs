@@ -15,6 +15,6 @@ public class QuizDbContext : DbContext
     public DbSet<Quiz> Quizzes => Set<Quiz>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<SingleChoiceQuestion> SingleChoiceQuestions => Set<SingleChoiceQuestion>();
-    public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions => Set<MultipleChoiceQuestion>();
+    public DbSet<MultiChoiceQuestion> MultipleChoiceQuestions => Set<MultiChoiceQuestion>();
     public DbSet<QuestionOption> QuestionOptions => Set<QuestionOption>();
 }

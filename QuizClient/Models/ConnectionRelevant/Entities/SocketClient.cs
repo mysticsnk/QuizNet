@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizClient.Models.Interfaces;
@@ -44,30 +45,71 @@ public class SocketClient
 
     public async Task StartAcceptLoopAsync()
     {
-        while (_clientSocket.State == WebSocketState.Open)
+        try
         {
-            ServerMessage serverMessage = await ReceiveMessageAsync();
+            while (_clientSocket.State == WebSocketState.Open)
+            {
+                ServerMessage serverMessage = await ReceiveMessageAsync();
 
-            if (serverMessage is AccountMessage accountMessage)
-            {
-                Console.WriteLine("Received an account message");
+                if (serverMessage is AccountResultMessage accountMessage)
+                {
+                    if (accountMessage.IsSuccess)
+                    {
+                        ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                        clientState.Account = accountMessage.Account;
+                    }
+                    else
+                    {
+                        // TODO: Create a property for MVVM that shows these errors
+                        Console.WriteLine(accountMessage.Errors);
+                    }
+                }
+                else if (serverMessage is QuizJoinResultMessage joinResultMessage)
+                {
+                    if (joinResultMessage.IsSuccess)
+                    {
+                        ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                        clientState.CurrentSession = joinResultMessage.ClientQuizSession;
+                    }
+                    else
+                    {
+                        // TODO: Create a property for MVVM that shows these errors
+                        Console.WriteLine(joinResultMessage.Errors);
+                    }
+                }
+                else if (serverMessage is AnnouncementMessage announcementMessage)
+                {
+                    // TODO: Create a property for MVVM that shows this popup
+                    Console.WriteLine(announcementMessage.Text);
+                }
+                else if (serverMessage is KickMessage kickMessage)
+                {
+                    // TODO: Create a property for MVVM that shows this popup
+                    Console.WriteLine($"You were kicked. Reason {kickMessage.Reason}");
+                    ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                    clientState.CurrentSession = null;
+                }
+                else if (serverMessage is QuestionMessage questionMessage)
+                {
+                    ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                    clientState.CurrentSession.CurrentQuestion = questionMessage.Question;
+                }
+                else
+                {
+                    Console.WriteLine("Unknown message received");
+                }
             }
-            else if (serverMessage is AnnouncementMessage announcementMessage)
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            if (ex.InnerException != null)
             {
-                Console.WriteLine("Received an announcement message");
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException);
             }
-            else if (serverMessage is KickMessage kickMessage)
-            {
-                Console.WriteLine("Received a kick message");
-            }
-            else if (serverMessage is QuestionMessage questionMessage)
-            {
-                Console.WriteLine("Received a question message");
-            }
-            else
-            {
-                Console.WriteLine("Unknown message received");
-            }
+
+            Console.WriteLine(ex.StackTrace);
         }
     }
 

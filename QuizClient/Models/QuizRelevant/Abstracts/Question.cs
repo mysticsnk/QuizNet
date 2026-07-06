@@ -1,10 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Avalonia.Media.Imaging;
 using QuizClient.Models.Entities.QuizRelevant;
+using QuizClient.Models.QuizRelevant.Entities.Questions;
 
 namespace QuizClient.Models.QuizRelevant.Abstracts;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(MultiChoiceQuestion), "multi")]
+[JsonDerivedType(typeof(SingleChoiceQuestion), "single")]
+[JsonDerivedType(typeof(ShortTextQuestion), "shortText")]
+[JsonDerivedType(typeof(TrueFalseQuestion), "trueFalse")]
 public abstract class Question
 {
     public Guid Id { get; set; }

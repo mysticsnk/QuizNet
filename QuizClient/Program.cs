@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizClient.Models;
+using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.DatabaseRelevant.Entities;
 using QuizClient.Models.DatabaseRelevant.Interfaces;
@@ -19,9 +20,6 @@ using QuizClient.Models.QuizRelevant.Abstracts;
 using QuizClient.Models.QuizRelevant.Entities.Questions;
 using QuizClient.Models.Services;
 using QuizClient.Models.Services.Interfaces;
-using QuizClient.Models.SessionRelevant;
-using QuizClient.Models.SessionRelevant.Answers;
-using QuizClient.Models.UserRelevant;
 using QuizClient.ViewModels;
 
 namespace QuizClient;
@@ -42,76 +40,51 @@ sealed class Program
             })
             .Build();
         
-        var quiz = new Quiz(
-            "General Knowledge Test",
-            new List<Question>
-            {
-                new SingleChoiceQuestion(
-                    new List<QuestionOption>
-                    {
-                        new(true, "Paris"),
-                        new(false, "London"),
-                        new(false, "Berlin"),
-                        new(false, "Madrid")
-                    },
-                    "What is the capital of France?",
-                    pointsWeight: 100
-                ),
-
-                new MultiChoiceQuestion(
-                    new List<QuestionOption>
-                    {
-                        new(true, "C#"),
-                        new(true, "Java"),
-                        new(false, "HTML"),
-                        new(false, "CSS")
-                    },
-                    "Which of the following are programming languages?",
-                    pointsWeight: 150
-                ),
-
-                new TrueFalseQuestion(
-                    new List<QuestionOption>
-                    {
-                        new(false, "True"),
-                        new(true, "False")
-                    },
-                    "The Sun revolves around the Earth.",
-                    pointsWeight: 50
-                ),
-
-                new ShortTextQuestion(
-                    "Who developed the theory of relativity?",
-                    null,
-                    200,
-                    "Albert Einstein",
-                    false,
-                    "Type the scientist's name..."
-                )
-            }
-        );
         
-        UserAccount clientAcc1 = new UserAccount(
-            "MysticSNKclient1",
-            "mystic@example.com",
-            "dummyHash"
-        );
+
+        IPasswordHashingService hasher = AppHost.Services.GetRequiredService<IPasswordHashingService>();
+        SocketClient client = AppHost.Services.GetRequiredService<SocketClient>();
+        await client.ConnectToServerAsync();
+        Task.Run(async () =>
+        {
+            await client.StartAcceptLoopAsync();
+        });
         
-        UserAccount clientAcc2 = new UserAccount(
-            "MysticSNKclient2",
-            "mystic@example.com",
-            "dummyHash"
-        );
+        string userName = "mystic@example.com";
+        string email = "mystic@example.com";
+        string password = "superSecret123";
 
-        Participant participant1 = new Participant("participant1", clientAcc1);
-        Participant participant2 = new Participant("participant2", clientAcc2);
+        string hash = hasher.Hash(password);
 
-        ClientLoginMessage loginMessage =
-            new ClientLoginMessage("MysticSNKclient1", "mystic@example.com", "dummyHash");
-
-        await participant1._socketClient.ConnectToServerAsync();
+        ClientRegistrationMessage registrationMessage = new ClientRegistrationMessage(userName, email, hash);
+        await client.SendMessageAsync(registrationMessage);
+        Thread.Sleep(500);
         
-        await participant1._socketClient.SendMessageAsync(loginMessage);
+        ClientState clientState = AppHost.Services.GetRequiredService<ClientState>();
+
+        int counter = 100;
+        while (clientState.Account == null)
+        {
+            await Task.Delay(100);
+            Console.WriteLine(counter);
+            counter += 100;
+        }
+        
+        Console.WriteLine(clientState.Account);
+
+        ClientJoinQuizMessage joinMessage = new ClientJoinQuizMessage("Gudli", "1234", clientState.Account);
+        await client.SendMessageAsync(joinMessage);
+        
+        
+        counter = 100;
+        while (clientState.CurrentSession == null)
+        {
+            await Task.Delay(100);
+            Console.WriteLine(counter);
+            counter += 100;
+        }
+        
+        Console.WriteLine(clientState.CurrentSession.Participant.UserName);
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -135,10 +108,10 @@ sealed class Program
         services.AddTransient<IUserRepository, SqliteUserRepository>();
         services.AddTransient<IQuizRepository, SqliteQuizRepository>();
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
-        services.AddTransient<IUserRegistrationService, UserRegistrationService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketClient>();
+        services.AddSingleton<ClientState>();
         
         string connectionString =
             $"Data Source={Path.Combine(AppContext.BaseDirectory, "quiz.db")}";

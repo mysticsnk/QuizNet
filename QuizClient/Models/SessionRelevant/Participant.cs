@@ -15,9 +15,8 @@ public class Participant
     public string UserName { get; set; } = String.Empty;
     public int Points { get; set; }
     public UserAccount? Account { get; set; }
-    public SocketClient _socketClient { get; set; }
 
-    public Participant(string userName, UserAccount? account)
+    public Participant(string userName, UserAccount? account = null)
     {
         UserName = userName;
         if (account != null)
@@ -29,20 +28,5 @@ public class Participant
         {
             Id = Guid.NewGuid();
         }
-
-        _socketClient = Program.AppHost.Services.GetRequiredService<SocketClient>();
     }
-
-    /*public async Task<bool> SendAnswerAsync(Answer answer)
-    {
-        if (!_socketClient.IsConnected)
-        {
-            await _socketClient.ConnectToServerAsync();
-        }
-        string answerJson = JsonSerializer.Serialize(answer);
-        
-        bool isSent = await _socketClient.SendMessageAsync(answerJson);
-
-        return isSent;
-    }*/
 }

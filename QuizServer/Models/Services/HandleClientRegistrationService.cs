@@ -17,18 +17,18 @@ public class HandleClientRegistrationService : IHandleClientRegistrationService
         RegistrationService = registrationService;
     }
     
-    public async Task HandleAsync(ClientRegisterMessage registerMessage, ConnectedClient client)
+    public async Task HandleAsync(ClientRegistrationMessage registrationMessage, ConnectedClient client)
     {
         IUserRegistrationService registrationService =
             Program.AppHost.Services.GetRequiredService<IUserRegistrationService>();
 
-        UserAccount account = new UserAccount(registerMessage.UserName, registerMessage.Email,
-            registerMessage.PasswordHash);
+        UserAccount account = new UserAccount(registrationMessage.UserName, registrationMessage.Email,
+            registrationMessage.PasswordHash);
                 
         await registrationService.RegisterAsync(account.UserName, account.Email, account.PasswordHash);
                 
-        AccountMessage serverMessage = new AccountMessage(account);
+        AccountResultMessage resultMessage = new AccountResultMessage(true, account);
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
-        await server.SendMessageAsync(client, serverMessage);
+        await server.SendMessageAsync(client, resultMessage);
     }
 }

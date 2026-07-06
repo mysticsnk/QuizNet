@@ -4,7 +4,7 @@ using QuizServer.Models.Entities;
 
 namespace QuizServer.Models.Services.Interfaces;
 
-public interface IHandleClientRegistrationService
+public interface IHandleClientQuizJoinService
 {
-    public Task HandleAsync(ClientRegistrationMessage message, ConnectedClient client);
+    public Task HandleAsync(ClientJoinQuizMessage joinQuizMessage, ConnectedClient connectedClient);
 }

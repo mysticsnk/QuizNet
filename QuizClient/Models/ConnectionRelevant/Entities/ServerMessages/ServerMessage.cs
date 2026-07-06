@@ -3,10 +3,11 @@ using System.Text.Json.Serialization;
 namespace QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
-[JsonDerivedType(typeof(AccountMessage), "account")]
+[JsonDerivedType(typeof(AccountResultMessage), "account")]
 [JsonDerivedType(typeof(AnnouncementMessage), "announcement")]
 [JsonDerivedType(typeof(KickMessage), "kick")]
 [JsonDerivedType(typeof(QuestionMessage), "question")]
+[JsonDerivedType(typeof(QuizJoinResultMessage), "joinResult")]
 public abstract class ServerMessage
 {
     

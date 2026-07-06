@@ -15,7 +15,6 @@ public class Participant
     public string UserName { get; set; } = String.Empty;
     public int Points { get; set; }
     public UserAccount? Account { get; set; }
-    private SocketClient _client { get; set; }
 
     public Participant(string userName, UserAccount? account)
     {
@@ -30,7 +29,6 @@ public class Participant
             Id = Guid.NewGuid();
         }
 
-        _client = Program.AppHost.Services.GetRequiredService<SocketClient>();
     }
 
     /*public async Task<bool> SendAnswerAsync(Answer answer)
