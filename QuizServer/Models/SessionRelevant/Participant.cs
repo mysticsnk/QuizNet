@@ -14,6 +14,7 @@ public class Participant
     public Guid Id { get; set; }
     public string UserName { get; set; } = String.Empty;
     public int Points { get; set; }
+    public int CurrentQuestionIndex { get; set; }
     public UserAccount? Account { get; set; }
 
     public Participant(string userName, UserAccount? account)
@@ -29,6 +30,7 @@ public class Participant
             Id = Guid.NewGuid();
         }
 
+        CurrentQuestionIndex = -1;
     }
 
     /*public async Task<bool> SendAnswerAsync(Answer answer)

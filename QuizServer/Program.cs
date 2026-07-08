@@ -101,14 +101,36 @@ sealed class Program
         
         Task serverTask = server.StartAsync();
 
-        AsynchronousQuizMode mode = new AsynchronousQuizMode();
+        SynchronousQuizMode mode = new SynchronousQuizMode();
         ServerQuizSession session = new ServerQuizSession(quiz, "1234", mode);
-        
+
         await session.StartAsync();
 
         await Task.Delay(10000);
-        KickMessage kickMessage = new KickMessage("Cuz why not lol");
-        await server.BroadcastMessageAsync(kickMessage);
+
+        await mode.AdvanceQuestionAsync();
+        Console.WriteLine("Advanced to the next question");
+        
+        await Task.Delay(10000);
+
+        await mode.AdvanceQuestionAsync();
+        Console.WriteLine("Advanced to the next question");
+        
+        await Task.Delay(10000);
+
+        await mode.AdvanceQuestionAsync();
+        Console.WriteLine("Advanced to the next question");
+        
+        await Task.Delay(10000);
+
+        await mode.AdvanceQuestionAsync();
+        Console.WriteLine("Advanced to the next question");
+        
+        await Task.Delay(10000);
+
+        await mode.AdvanceQuestionAsync(); 
+        Console.WriteLine("Advanced to the next question");
+        
         
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
@@ -137,6 +159,7 @@ sealed class Program
         services.AddTransient<IHandleClientRegistrationService, HandleClientRegistrationService>();
         services.AddTransient<IHandleClientLoginService, HandleClientLoginService>();
         services.AddTransient<IHandleClientQuizJoinService, HandleClientQuizJoinService>();
+        services.AddTransient<IAnswerLogger, DummyAnswerLogger>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();

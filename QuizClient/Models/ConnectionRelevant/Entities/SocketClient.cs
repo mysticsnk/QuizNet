@@ -10,6 +10,9 @@ using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizClient.Models.Interfaces;
+using QuizClient.Models.QuizRelevant.Abstracts;
+using QuizClient.Models.Services.Interfaces;
+using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.UserRelevant;
 
 namespace QuizClient.Models;
@@ -23,7 +26,7 @@ public class SocketClient
     private TaskCompletionSource<UserAccount>? _pendingRegistration { get; set; }
     private TaskCompletionSource<UserAccount>? _pendingLogin { get; set; }
     private TaskCompletionSource<QuizJoinResultMessage>? _pendingJoin { get; set; }
-
+    private TaskCompletionSource<Question>? _pendingQuestion { get; set; }
     public SocketClient(IPortResolver portResolver)
     {
         _portResolver = portResolver;
@@ -87,6 +90,24 @@ public class SocketClient
         return await tcs.Task;
     }
 
+    public async Task<Question> WaitForNextQuestionAsync()
+    {
+        TaskCompletionSource<Question> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        
+        _pendingQuestion = tcs;
+
+        return await tcs.Task;
+    }
+
+    public async Task SendAnswerAsync(Answer answer)
+    {
+        ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+        
+        ClientAnswerMessage message = new ClientAnswerMessage(clientState.CurrentSession.Participant, answer);
+
+        await SendMessageAsync(message);
+    }
+
     public async Task StartAcceptLoopAsync()
     {
         try
@@ -129,9 +150,13 @@ public class SocketClient
                 {
                     if (joinResultMessage.IsSuccess)
                     {
+                        IAnticheatApplyService anticheater =
+                            Program.AppHost.Services.GetRequiredService<IAnticheatApplyService>();
+                        anticheater.Apply();
+                        
                         ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
                         clientState.CurrentSession = joinResultMessage.ClientQuizSession;
-                        _pendingJoin?.SetResult(joinResultMessage);
+                         _pendingJoin?.SetResult(joinResultMessage);
                         _pendingJoin = null;
                     }
                     else
@@ -156,12 +181,33 @@ public class SocketClient
                 {
                     ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
                     clientState.CurrentSession.CurrentQuestion = questionMessage.Question;
+                    _pendingQuestion?.SetResult(questionMessage.Question);
+                    _pendingQuestion = null;
+                }
+                else if (serverMessage is QuizEndedMessage quizEndedMessage)
+                {
+                    ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                    clientState.CurrentSession = null;
+                    Console.WriteLine("Quiz ended");
+                }
+                else if (serverMessage is TestResultMessage testResultMessage)
+                {
+                    // TODO: Create a property for MVVM that shows this popup
+                    Console.WriteLine($"Place: {testResultMessage.Place}");
+                    Console.WriteLine($"Points: {testResultMessage.Points}");
+                    
+                    ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
+                    clientState.CurrentSession = null;
                 }
                 else
                 {
                     Console.WriteLine("Unknown message received");
                 }
             }
+        }
+        catch (WebSocketException ex)
+        {
+            Console.WriteLine("Server disconnected");
         }
         catch (Exception ex)
         {

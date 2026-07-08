@@ -10,5 +10,5 @@ public interface IQuizMode
 
     Task HandleAnswerAsync(Participant participant, Answer answer);
 
-    Task NextQuestionAsync();
+    Task SendCurrentQuestionAsync(Participant participant);
 }

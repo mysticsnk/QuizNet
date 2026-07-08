@@ -6,8 +6,7 @@ public class TrueFalseAnswer : Answer
 {
     public Guid SelectedOptionId { get; set; }
 
-    public TrueFalseAnswer(Guid participantId, Guid questionId, Guid selectedOptionId) : base(participantId,
-        questionId)
+    public TrueFalseAnswer(Guid questionId, Guid selectedOptionId) : base(questionId)
     {
         SelectedOptionId = selectedOptionId;  
     }

@@ -25,11 +25,17 @@ public class ServerQuizSession
         Pin = pin;
         CurrentQuestion = quiz.Questions[0];
         Mode = mode;
+        CurrentQuestionIndex = 0;
     }
 
     public async Task StartAsync()
     {
         await Mode.StartAsync(this);
+    }
+
+    public async Task BeginQuizAsync()
+    {
+        
     }
 
     public bool IsCorrectPin(string pin)

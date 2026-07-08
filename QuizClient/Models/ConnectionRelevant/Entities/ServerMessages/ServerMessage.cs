@@ -9,6 +9,8 @@ namespace QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
 [JsonDerivedType(typeof(KickMessage), "kick")]
 [JsonDerivedType(typeof(QuestionMessage), "question")]
 [JsonDerivedType(typeof(QuizJoinResultMessage), "joinResult")]
+[JsonDerivedType(typeof(TestResultMessage), "testResult")]
+[JsonDerivedType(typeof(QuizEndedMessage), "quizEnd")]
 public abstract class ServerMessage
 {
     

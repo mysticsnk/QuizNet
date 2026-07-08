@@ -9,13 +9,12 @@ using QuizServer.Models.SessionRelevant.Answers;
 
 namespace QuizServer.Models.QuizRelevant.Entities.QuizModes;
 
-public class AsynchronousQuizMode : IQuizMode
+public class SynchronousQuizMode : IQuizMode
 {
     
     public async Task StartAsync(ServerQuizSession session)
     {
         ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
-        SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
         serverState.CurrentSession = session;
     }
 
@@ -23,26 +22,31 @@ public class AsynchronousQuizMode : IQuizMode
     {
         IAnswerLogger logger = Program.AppHost.Services.GetRequiredService<IAnswerLogger>();
         await logger.LogAsync(participant, answer);
-        await SendCurrentQuestionAsync(participant);
     }
 
     public async Task SendCurrentQuestionAsync(Participant participant)
     {
+        throw new NotSupportedException();
+    }
+
+
+    public async Task AdvanceQuestionAsync()
+    {
         ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
-        int newIndex = ++participant.CurrentQuestionIndex;
-        participant.CurrentQuestionIndex = newIndex;
-
+        int newIndex = serverState.CurrentSession.CurrentQuestionIndex++;
+        
         if (newIndex >= serverState.CurrentSession.Quiz.Questions.Count)
         {
-            await server.SendQuizEndMessageAsync(participant);
-            Console.WriteLine("Quiz ended");
+            await server.BroadcastQuizEndMessageAsync();
+            serverState.CurrentSession = null;
             return;
         }
-
+        
         Question newQuestion = serverState.CurrentSession.Quiz.Questions[newIndex];
-        Console.WriteLine("Sending new question...");
-        await server.SendQuestionAsync(participant, newQuestion);
-        Console.WriteLine("Sent new question!");
+        
+        serverState.CurrentSession.CurrentQuestion = newQuestion;
+        
+        await server.BroadcastQuestionAsync(newQuestion);
     }
 }

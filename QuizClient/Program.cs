@@ -21,6 +21,8 @@ using QuizClient.Models.QuizRelevant.Abstracts;
 using QuizClient.Models.QuizRelevant.Entities.Questions;
 using QuizClient.Models.Services;
 using QuizClient.Models.Services.Interfaces;
+using QuizClient.Models.SessionRelevant;
+using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.UserRelevant;
 using QuizClient.ViewModels;
 
@@ -49,28 +51,72 @@ sealed class Program
         await client.ConnectToServerAsync();
         _ = client.StartAcceptLoopAsync();
         
-        string userName = "mystic@example.com";
+        string userName = "gudli";
         string email = "mystic@example.com";
         string password = "superSecret123";
 
         string hash = hasher.Hash(password);
+        await Task.Delay(5000);
 
         UserAccount account = await client.RegisterAsync(userName, email, hash);
         
         ClientState clientState = AppHost.Services.GetRequiredService<ClientState>();
         
         Console.WriteLine(clientState.Account);
+        
+        Task<Question> questionTask = client.WaitForNextQuestionAsync();
 
-        QuizJoinResultMessage resultMessage = await client.JoinQuizAsync("gudli", "1234", clientState.Account);
+        await client.JoinQuizAsync(userName, "1234", account);
+
+        Question currentQuestion = await questionTask;
         
-        Console.WriteLine(clientState.CurrentSession.Participant.UserName);
+        int questionCounter = 1;
+        while (questionCounter <= clientState.CurrentSession.Quiz.Questions.Count)
+        {
+            Console.WriteLine(clientState.CurrentSession.CurrentQuestion?.Title ?? "No question yet");
+            
+            Task<Question> nextQuestionTask = client.WaitForNextQuestionAsync();
+            
+            if (currentQuestion is SingleChoiceQuestion singleChoiceQuestion)
+            {
+                SingleChoiceAnswer answer =
+                    new SingleChoiceAnswer(currentQuestion.Id, singleChoiceQuestion.Options[0].Id);
+            
+                await client.SendAnswerAsync(answer);
+                Console.WriteLine("Sent a single choice answer!");
+            }
+            else if (currentQuestion is MultiChoiceQuestion multiChoiceQuestion)
+            {
+                List<Guid> options = new List<Guid>();
+                options.Add(multiChoiceQuestion.Options[0].Id);
+                options.Add(multiChoiceQuestion.Options[1].Id);
+                MultiChoiceAnswer answer = new MultiChoiceAnswer(currentQuestion.Id, options);
+                
+                await client.SendAnswerAsync(answer);
+                Console.WriteLine("Sent a multi choice answer!");
+            }
+            else if (currentQuestion is ShortTextQuestion shortTextQuestion)
+            {
+                string answerText = "Albert Einstein";
+                ShortTextAnswer answer = new ShortTextAnswer(currentQuestion.Id, answerText);
+
+                await client.SendAnswerAsync(answer);
+                Console.WriteLine("Sent a short text answer!");
+            }
+            else if (currentQuestion is TrueFalseQuestion trueFalseQuestion)
+            {
+                QuestionOption option = trueFalseQuestion.Options[0];
+                TrueFalseAnswer answer = new TrueFalseAnswer(currentQuestion.Id, option.Id);
+
+                await client.SendAnswerAsync(answer);
+                Console.WriteLine("Sent a true false answer!");
+            }
+
+            questionCounter++;
+
+            currentQuestion = await nextQuestionTask;
+        }
         
-        
-        // This pause is needed because all this synchronous test code causes a little bug
-        // Since BuildAvaloniaApp() is not called yet. 
-        // Avalonia itself warns us about this, saying preferably no synchronous code should be
-        // executed before Main(), so I will bet on this being the reason for the little bug
-        await Task.Delay(15000);
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }
@@ -93,7 +139,10 @@ sealed class Program
         services.AddTransient<IUserRepository, SqliteUserRepository>();
         services.AddTransient<IQuizRepository, SqliteQuizRepository>();
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
+        // TODO: Make an actual anticheat
+        services.AddTransient<IAnticheatApplyService, DummyAnticheatService>();
         
+        // TODO: Make an actual port resolver
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketClient>();
         services.AddSingleton<ClientState>();

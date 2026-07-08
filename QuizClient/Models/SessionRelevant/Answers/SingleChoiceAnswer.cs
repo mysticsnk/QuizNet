@@ -6,8 +6,7 @@ public class SingleChoiceAnswer : Answer
 {
     public Guid SelectedOptionId { get; set; }
     
-    public SingleChoiceAnswer(Guid participantId, Guid questionId, Guid selectedOptionId) : base(participantId,
-        questionId)
+    public SingleChoiceAnswer(Guid questionId, Guid selectedOptionId) : base(questionId)
     {
         SelectedOptionId = selectedOptionId;
     }

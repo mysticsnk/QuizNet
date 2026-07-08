@@ -14,15 +14,13 @@ namespace QuizClient.Models.SessionRelevant.Answers;
 public abstract class Answer
 {
     public Guid Id { get; set; }
-    public Guid ParticipantId { get; set; }
     public Guid QuestionId { get; set; }
     public TimeSpan TimeSpent { get; set; }
     private Stopwatch _stopwatch { get; set; }
 
-    public Answer(Guid participantId, Guid questionId)
+    public Answer(Guid questionId)
     {
         Id = Guid.NewGuid();
-        ParticipantId = participantId;
         QuestionId = questionId;
     }
 

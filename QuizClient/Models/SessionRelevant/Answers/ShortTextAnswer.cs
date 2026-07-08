@@ -7,8 +7,7 @@ public class ShortTextAnswer : Answer
 {
     public string AnswerText { get; set; } = string.Empty;
     
-    public ShortTextAnswer(Guid participantId, Guid questionId, string answerText) : base(participantId,
-        questionId)
+    public ShortTextAnswer(Guid questionId, string answerText) : base(questionId)
     {
         AnswerText = answerText;
     }

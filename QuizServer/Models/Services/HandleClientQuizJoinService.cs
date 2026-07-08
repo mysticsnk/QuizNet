@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.AppRelevant;
@@ -11,7 +13,7 @@ namespace QuizServer.Models.Services;
 
 public class HandleClientQuizJoinService : IHandleClientQuizJoinService
 {
-    public async Task HandleAsync(ClientJoinQuizMessage joinQuizMessage, ConnectedClient client)
+    public async Task<Participant> HandleAsync(ClientJoinQuizMessage joinQuizMessage, ConnectedClient client)
     {
         ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
@@ -22,6 +24,7 @@ public class HandleClientQuizJoinService : IHandleClientQuizJoinService
             resultMessage.IsSuccess = false;
             resultMessage.AddError("No sessions currently active");
             await server.SendMessageAsync(client, resultMessage);
+            return null;
         }
 
         if (!serverState.CurrentSession.IsCorrectPin(joinQuizMessage.Pin))
@@ -29,6 +32,7 @@ public class HandleClientQuizJoinService : IHandleClientQuizJoinService
             resultMessage.IsSuccess = false;
             resultMessage.AddError("Invalid pin");
             await server.SendMessageAsync(client, resultMessage);
+            return null;
         }
 
         resultMessage.IsSuccess = true;
@@ -39,10 +43,21 @@ public class HandleClientQuizJoinService : IHandleClientQuizJoinService
         ClientQuizSession clientSession = new ClientQuizSession();
         clientSession.Participant = newParticipant;
         clientSession.Quiz = serverState.CurrentSession.Quiz;
-        clientSession.CurrentQuestion = serverState.CurrentSession.CurrentQuestion;
         resultMessage.ClientQuizSession = clientSession;
 
-        await server.SendMessageAsync(client, resultMessage);
+        serverState.CurrentSession.Participants.Add(newParticipant);
+        client.Participant = newParticipant;
 
+        await server.SendMessageAsync(client, resultMessage);
+        try
+        {
+            await serverState.CurrentSession.Mode.SendCurrentQuestionAsync(newParticipant);
+        }
+        catch (NotSupportedException)
+        {
+            
+        }
+
+        return newParticipant;
     }
 }

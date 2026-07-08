@@ -7,8 +7,7 @@ public class MultiChoiceAnswer : Answer
 {
     public List<Guid> SelectedOptionIds { get; set; }
 
-    public MultiChoiceAnswer(Guid participantId, Guid questionId, List<Guid> selectedOptionIds) : base(participantId,
-        questionId)
+    public MultiChoiceAnswer(Guid questionId, List<Guid> selectedOptionIds) : base(questionId)
     {
         SelectedOptionIds = selectedOptionIds;
     }

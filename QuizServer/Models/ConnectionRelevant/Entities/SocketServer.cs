@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -11,9 +12,11 @@ using System.Threading.Tasks;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.AppRelevant;
 using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.QuizRelevant.Abstracts;
 using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
 using ClientAnswerMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientAnswerMessage;
@@ -77,7 +80,7 @@ public class SocketServer
                 {
                     IHandleClientRegistrationService registrationService =
                         Program.AppHost.Services.GetRequiredService<IHandleClientRegistrationService>();
-
+                    
                     await registrationService.HandleAsync(registrationMessage, client);
                 }
                 else if (clientMessage is ClientLoginMessage loginMessage)
@@ -91,12 +94,22 @@ public class SocketServer
                 {
                     IHandleClientQuizJoinService quizJoinService =
                         Program.AppHost.Services.GetRequiredService<IHandleClientQuizJoinService>();
-
-                    await quizJoinService.HandleAsync(joinQuizMessage, client);
+                    
+                    client.Participant = await quizJoinService.HandleAsync(joinQuizMessage, client);
                 }
                 else if (clientMessage is ClientAnswerMessage answerMessage)
                 {
+                    ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
 
+                    IQuizMode? mode = serverState?.CurrentSession?.Mode;
+
+                    if (mode == null)
+                    {
+                        Console.WriteLine("The mode is not initialized");
+                        continue;
+                    }
+
+                    await mode.HandleAnswerAsync(client.Participant, answerMessage.Answer);
                 }
                 else
                 {
@@ -104,9 +117,14 @@ public class SocketServer
                 }
             }
         }
+        catch (WebSocketException ex)
+        {
+            Console.WriteLine($"Client {client.Participant.UserName} disconnected");
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
             if (ex.InnerException != null)
             {
                 Console.WriteLine("INNER:");
@@ -160,7 +178,7 @@ public class SocketServer
 
         string jsonMessage = JsonSerializer.Serialize(message);
         
-        await SafeSendAsync(ws ,jsonMessage);
+        await SafeSendAsync(ws, jsonMessage);
         return true;
     }
 
@@ -175,6 +193,98 @@ public class SocketServer
     
         await Task.WhenAll(tasks);
         Console.WriteLine($"Broadcasted a message {message} to all clients");
+    }
+
+    public async Task BroadcastToParticipantsAsync(ServerMessage message)
+    {
+        List<Task> tasks = new List<Task>();
+        
+        foreach (ConnectedClient client in Clients)
+        {
+            if (client.Participant != null) 
+                tasks.Add(SendMessageAsync(client, message));
+        }
+    
+        await Task.WhenAll(tasks);
+        Console.WriteLine($"Broadcasted a message {message} to all clients");
+    }
+
+    public async Task KickParticipantAsync(Participant participant, string reason)
+    {
+        KickMessage message = new KickMessage(reason);
+
+        ConnectedClient? client = Clients.Where(c => c.Participant.Id == participant.Id).FirstOrDefault();
+
+        if (client == null)
+        {
+            Console.WriteLine("Participant for kicking not found");
+            return;
+        }
+
+        client.Participant = null;
+        
+        await SendMessageAsync(client, message);
+
+        ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
+        serverState.CurrentSession.KickParticipant(participant);
+    }
+
+    public async Task BroadcastAnnouncementAsync(string announcement)
+    {
+        AnnouncementMessage message = new AnnouncementMessage(announcement);
+
+        await BroadcastMessageAsync(message);
+    }
+
+    public async Task BroadcastAnnouncementToParticipantsAsync(string announcement)
+    {
+        AnnouncementMessage message = new AnnouncementMessage(announcement);
+        
+        await BroadcastToParticipantsAsync(message);
+    }
+
+    public async Task SendQuestionAsync(Participant participant, Question question)
+    {
+        QuestionMessage message = new QuestionMessage(question);
+        ConnectedClient client = Clients.Where(c => c.Participant.Id == participant.Id).FirstOrDefault();
+        await SendMessageAsync(client, message);
+    }
+
+    public async Task BroadcastQuestionAsync(Question question)
+    {
+        foreach (ConnectedClient client in Clients)
+        {
+            List<Task> tasks = new List<Task>();
+            
+            if (client.Participant != null)
+            {
+                tasks.Add(SendQuestionAsync(client.Participant, question));
+            }
+
+            await Task.WhenAll(tasks);
+        }
+    }
+
+    public async Task SendQuizEndMessageAsync(Participant participant)
+    {
+        QuizEndedMessage message = new QuizEndedMessage();
+        ConnectedClient client = Clients.Where(c => c.Participant.Id == participant.Id).FirstOrDefault();
+        await SendMessageAsync(client, message);
+    }
+
+    public async Task BroadcastQuizEndMessageAsync()
+    {
+        foreach (ConnectedClient client in Clients)
+        {
+            List<Task> tasks = new List<Task>();
+            
+            if (client.Participant != null)
+            {
+                tasks.Add(SendQuizEndMessageAsync(client.Participant));
+            }
+
+            await Task.WhenAll(tasks);
+        }
     }
     
     private static async Task SafeSendAsync(WebSocket ws, string message)
