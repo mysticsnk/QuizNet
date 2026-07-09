@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizServer.Models.AppRelevant;
@@ -39,6 +40,7 @@ sealed class Program
             {
                 ConfigureServices(services);
             })
+            
             .Build();
         
         
@@ -98,6 +100,8 @@ sealed class Program
         );
 
         SocketServer server = AppHost.Services.GetRequiredService<SocketServer>();
+        IQuizRepository quizRepository = AppHost.Services.GetRequiredService<IQuizRepository>();
+        await quizRepository.CreateAsync(quiz);
         
         Task serverTask = server.StartAsync();
 
@@ -111,22 +115,22 @@ sealed class Program
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(10000);
+        await Task.Delay(3000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(10000);
+        await Task.Delay(3000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(10000);
+        await Task.Delay(3000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(10000);
+        await Task.Delay(3000);
 
         await mode.AdvanceQuestionAsync(); 
         Console.WriteLine("Advanced to the next question");
@@ -153,6 +157,7 @@ sealed class Program
         services.AddTransient<UserValidationService>();
         services.AddTransient<IUserRepository, SqliteUserRepository>();
         services.AddTransient<IQuizRepository, SqliteQuizRepository>();
+        
         services.AddTransient<IPasswordHashingService, Sha256PasswordHashingService>();
         services.AddTransient<IUserRegistrationService, UserRegistrationService>();
         services.AddTransient<IUserValidationService, UserValidationService>();
@@ -160,6 +165,7 @@ sealed class Program
         services.AddTransient<IHandleClientLoginService, HandleClientLoginService>();
         services.AddTransient<IHandleClientQuizJoinService, HandleClientQuizJoinService>();
         services.AddTransient<IAnswerLogger, DummyAnswerLogger>();
+        services.AddTransient<ICheckAnswerService, CheckAnswerService>();
         
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();
@@ -167,7 +173,8 @@ sealed class Program
         
         string connectionString =
             $"Data Source={Path.Combine(AppContext.BaseDirectory, "quiz.db")}";
-        services.AddDbContext<QuizDbContext>(options => options.UseSqlite(connectionString));
+        services.AddDbContext<QuizDbContext>(options => options.UseSqlite(connectionString)
+            .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ContextInitialized)));
         
     }
 }

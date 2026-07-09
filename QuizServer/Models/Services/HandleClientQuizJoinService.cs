@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.AppRelevant;
 using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.DatabaseRelevant.Entities;
+using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities;
+using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.SessionRelevant;
 
@@ -17,6 +20,7 @@ public class HandleClientQuizJoinService : IHandleClientQuizJoinService
     {
         ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
+        
         QuizJoinResultMessage resultMessage = new QuizJoinResultMessage();
         
         if (serverState.CurrentSession == null)
@@ -46,6 +50,8 @@ public class HandleClientQuizJoinService : IHandleClientQuizJoinService
         resultMessage.ClientQuizSession = clientSession;
 
         serverState.CurrentSession.Participants.Add(newParticipant);
+        serverState.ParticipantResults.Add(new ParticipantResult(newParticipant));
+        
         client.Participant = newParticipant;
 
         await server.SendMessageAsync(client, resultMessage);

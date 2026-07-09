@@ -188,16 +188,10 @@ public class SocketClient
                 {
                     ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
                     clientState.CurrentSession = null;
+                    clientState.Result = quizEndedMessage.Result;
                     Console.WriteLine("Quiz ended");
-                }
-                else if (serverMessage is TestResultMessage testResultMessage)
-                {
-                    // TODO: Create a property for MVVM that shows this popup
-                    Console.WriteLine($"Place: {testResultMessage.Place}");
-                    Console.WriteLine($"Points: {testResultMessage.Points}");
-                    
-                    ClientState clientState = Program.AppHost.Services.GetRequiredService<ClientState>();
-                    clientState.CurrentSession = null;
+                    Console.WriteLine($"Total score: {clientState.Result.TotalScore}");
+                    Console.WriteLine($"Place: {clientState.Result.Place}");
                 }
                 else
                 {

@@ -17,6 +17,11 @@ public class Participant
     public int CurrentQuestionIndex { get; set; }
     public UserAccount? Account { get; set; }
 
+    public Participant()
+    {
+        
+    }
+    
     public Participant(string userName, UserAccount? account)
     {
         UserName = userName;

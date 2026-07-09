@@ -1,0 +1,30 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Standard card -->
+    <Style Selector="Border.card">
+            <Setter Property="Background"
+                            Value="{StaticResource SurfaceBrush}" />
+
+        <Setter Property="CornerRadius"
+                Value="12" />
+
+        <Setter Property="Padding"
+                Value="20" />
+
+        <Setter Property="BorderThickness"
+                Value="1" />
+
+        <Setter Property="BorderBrush"
+                Value="#333A4A" />
+
+        <Setter Property="Margin"
+                Value="8" />
+
+            <Style Selector="^ TextBlock">
+                    <Setter Property="Foreground"
+                            Value="White"
+                    />
+            </Style>
+    </Style>
+    
+</Styles>

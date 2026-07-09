@@ -15,9 +15,14 @@ namespace QuizServer.Models.QuizRelevant.Abstracts;
 public abstract class Question
 {
     public Guid Id { get; set; }
+    [JsonIgnore]
     public Guid QuizId { get; set; }
+    [JsonIgnore]
     public Quiz Quiz { get; set; }
+    public TimeSpan TimeLimit { get; set; }
+    public TimeSpan TimeSpent { get; set; }
     public string Title { get; set; } = string.Empty;
+    public List<QuestionOption> Options { get; set; } = new();
     
     public byte[]? ImageBytes { get; init; }
 

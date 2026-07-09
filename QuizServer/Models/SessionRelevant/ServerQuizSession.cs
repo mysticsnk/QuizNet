@@ -16,6 +16,7 @@ public class ServerQuizSession
     public Question CurrentQuestion { get; set; }
     public IQuizMode Mode { get; set; }
     public TimeSpan RemainingTime { get; set; }
+    public bool TimeReducesPoints { get; set; }
     public int CurrentQuestionIndex { get; set; }
     public string Pin { get; set; }
 

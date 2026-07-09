@@ -16,6 +16,7 @@ using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.AppRelevant;
 using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.QuizRelevant.Abstracts;
 using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
@@ -72,7 +73,8 @@ public class SocketServer
 
     private async Task HandleClient(ConnectedClient client)
     {
-        try {
+        try
+        {
             while (client.Ws.State == WebSocketState.Open)
             {
                 ClientMessage clientMessage = await ReceiveClientMessageAsync(client);
@@ -267,7 +269,9 @@ public class SocketServer
 
     public async Task SendQuizEndMessageAsync(Participant participant)
     {
-        QuizEndedMessage message = new QuizEndedMessage();
+        ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
+        
+        QuizEndedMessage message = new QuizEndedMessage(serverState.ParticipantResults.FirstOrDefault(pr => pr.Participant.Id == participant.Id));
         ConnectedClient client = Clients.Where(c => c.Participant.Id == participant.Id).FirstOrDefault();
         await SendMessageAsync(client, message);
     }

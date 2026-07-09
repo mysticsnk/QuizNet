@@ -9,7 +9,6 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class MultiChoiceQuestion : Question
 {
-    public List<QuestionOption> Options { get; set; } = new ();
     public MultiChoiceQuestion() : base()
     {
         

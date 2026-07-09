@@ -9,7 +9,16 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
   
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
-</Application>
+         <Application.Styles>
+
+             <FluentTheme/>
+             <StyleInclude Source="Styles/Colors.axaml"/>
+             <StyleInclude Source="/Styles/Buttons.axaml"/>
+             <StyleInclude Source="/Styles/Cards.axaml"/>
+
+         </Application.Styles>
+
+         <Application.Resources>
+
+
+         </Application.Resources></Application>
