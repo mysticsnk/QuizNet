@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizServer.Models.DatabaseRelevant.Entities;
 
@@ -10,9 +11,11 @@ using QuizServer.Models.DatabaseRelevant.Entities;
 namespace QuizServer.Migrations
 {
     [DbContext(typeof(QuizDbContext))]
-    partial class QuizDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260709093026_AddShortTextAndTrueFalseQuestions")]
+    partial class AddShortTextAndTrueFalseQuestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -29,15 +32,30 @@ namespace QuizServer.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("MultiChoiceQuestionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("QuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SingleChoiceQuestionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TextContent")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("TrueFalseQuestionId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("MultiChoiceQuestionId");
+
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("SingleChoiceQuestionId");
+
+                    b.HasIndex("TrueFalseQuestionId");
 
                     b.ToTable("QuestionOptions");
                 });
@@ -96,100 +114,6 @@ namespace QuizServer.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Question");
 
                     b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("QuizServer.Models.SessionRelevant.Answers.MultiChoiceAnswer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("SelectedOptionIds")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("TimeSpent")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MultiChoiceAnswers");
-                });
-
-            modelBuilder.Entity("QuizServer.Models.SessionRelevant.Answers.ShortTextAnswer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AnswerText")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("TimeSpent")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ShortTextAnswers");
-                });
-
-            modelBuilder.Entity("QuizServer.Models.SessionRelevant.Answers.SingleChoiceAnswer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SelectedOptionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("TimeSpent")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SingleChoiceAnswers");
-                });
-
-            modelBuilder.Entity("QuizServer.Models.SessionRelevant.Answers.TrueFalseAnswer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SelectedOptionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("TimeSpent")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TrueFalseAnswers");
                 });
 
             modelBuilder.Entity("QuizServer.Models.UserRelevant.UserAccount", b =>
@@ -259,11 +183,23 @@ namespace QuizServer.Migrations
 
             modelBuilder.Entity("QuizServer.Models.Entities.QuizRelevant.QuestionOption", b =>
                 {
-                    b.HasOne("QuizServer.Models.QuizRelevant.Abstracts.Question", "Question")
+                    b.HasOne("QuizServer.Models.QuizRelevant.Entities.Questions.MultiChoiceQuestion", null)
                         .WithMany("Options")
+                        .HasForeignKey("MultiChoiceQuestionId");
+
+                    b.HasOne("QuizServer.Models.QuizRelevant.Abstracts.Question", "Question")
+                        .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("QuizServer.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", null)
+                        .WithMany("Options")
+                        .HasForeignKey("SingleChoiceQuestionId");
+
+                    b.HasOne("QuizServer.Models.QuizRelevant.Entities.Questions.TrueFalseQuestion", null)
+                        .WithMany("Options")
+                        .HasForeignKey("TrueFalseQuestionId");
 
                     b.Navigation("Question");
                 });
@@ -284,7 +220,17 @@ namespace QuizServer.Migrations
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Abstracts.Question", b =>
+            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Entities.Questions.MultiChoiceQuestion", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("QuizServer.Models.QuizRelevant.Entities.Questions.TrueFalseQuestion", b =>
                 {
                     b.Navigation("Options");
                 });

@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 using Avalonia.Media.Imaging;
 using QuizClient.Models.QuizRelevant.Abstracts;
 
@@ -8,10 +9,10 @@ namespace QuizClient.Models.Entities.QuizRelevant;
 public class QuestionOption
 {
     public Guid Id { get; set; }
-    [NonSerialized] 
-    public Guid QuestionId;
-    [NonSerialized]
-    public Question Question;
+    [JsonIgnore] 
+    public Guid QuestionId { get; set; }
+    [JsonIgnore]
+    public Question Question { get; set; }
     public bool IsCorrect { get; init; }
 
     public string? TextContent { get; init; } = string.Empty;

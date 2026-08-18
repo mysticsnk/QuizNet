@@ -43,6 +43,8 @@ sealed class Program
                 ConfigureServices(services);
             })
             .Build();
+
+        Console.WriteLine(typeof(AvaloniaObject).Assembly.GetName().Version);
         
         
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities.QuizRelevant;
+using QuizServer.Models.QuizRelevant.Abstracts;
 
 namespace QuizServer.Models.DatabaseRelevant.Entities;
 
@@ -20,6 +21,16 @@ public class SqliteQuizRepository : IQuizRepository
     public async Task<List<Quiz>> GetAllQuizzesAsync()
     {
         return await _context.Quizzes.ToListAsync();
+    }
+
+    public async Task<List<Question>> GetAllQuestionsAsync()
+    {
+        return await _context.Questions.ToListAsync();
+    }
+
+    public async Task<List<QuestionOption>> GetAllQuestionOptionsAsync()
+    {
+        return await _context.QuestionOptions.ToListAsync();
     }
 
     public async Task<Quiz?> GetQuizByGuidAsync(Guid id)

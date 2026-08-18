@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuizClient.Models.DatabaseRelevant.Entities;
 
@@ -10,9 +11,11 @@ using QuizClient.Models.DatabaseRelevant.Entities;
 namespace QuizClient.Migrations
 {
     [DbContext(typeof(QuizDbContext))]
-    partial class QuizDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260709200922_FixingError")]
+    partial class FixingError
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -29,7 +32,10 @@ namespace QuizClient.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("QuestionId")
+                    b.Property<Guid?>("MultiChoiceQuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SingleChoiceQuestionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TextContent")
@@ -37,7 +43,9 @@ namespace QuizClient.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionId");
+                    b.HasIndex("MultiChoiceQuestionId");
+
+                    b.HasIndex("SingleChoiceQuestionId");
 
                     b.ToTable("QuestionOptions");
                 });
@@ -134,13 +142,13 @@ namespace QuizClient.Migrations
 
             modelBuilder.Entity("QuizClient.Models.Entities.QuizRelevant.QuestionOption", b =>
                 {
-                    b.HasOne("QuizClient.Models.QuizRelevant.Abstracts.Question", "Question")
+                    b.HasOne("QuizClient.Models.QuizRelevant.Entities.Questions.MultiChoiceQuestion", null)
                         .WithMany("Options")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MultiChoiceQuestionId");
 
-                    b.Navigation("Question");
+                    b.HasOne("QuizClient.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", null)
+                        .WithMany("Options")
+                        .HasForeignKey("SingleChoiceQuestionId");
                 });
 
             modelBuilder.Entity("QuizClient.Models.QuizRelevant.Abstracts.Question", b =>
@@ -159,7 +167,12 @@ namespace QuizClient.Migrations
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("QuizClient.Models.QuizRelevant.Abstracts.Question", b =>
+            modelBuilder.Entity("QuizClient.Models.QuizRelevant.Entities.Questions.MultiChoiceQuestion", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("QuizClient.Models.QuizRelevant.Entities.Questions.SingleChoiceQuestion", b =>
                 {
                     b.Navigation("Options");
                 });

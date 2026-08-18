@@ -15,12 +15,13 @@ namespace QuizClient.Models.QuizRelevant.Abstracts;
 public abstract class Question
 {
     public Guid Id { get; set; }
-    [NonSerialized] 
-    public Guid QuizId;
-    [NonSerialized]
-    public Quiz Quiz;
+    [JsonIgnore]  
+    public Guid QuizId { get; set; }
+    [JsonIgnore]
+    public Quiz Quiz { get; set; }
     public string Title { get; set; } = string.Empty;
     
+    public List<QuestionOption> Options { get; set; }= new();
     
     public byte[]? ImageBytes { get; init; }
 

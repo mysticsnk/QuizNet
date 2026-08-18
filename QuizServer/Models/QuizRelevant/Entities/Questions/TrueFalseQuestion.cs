@@ -10,7 +10,6 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class TrueFalseQuestion : Question
 {
-    public List<QuestionOption> Options { get; set; }= new();
 
     public TrueFalseQuestion() : base()
     {

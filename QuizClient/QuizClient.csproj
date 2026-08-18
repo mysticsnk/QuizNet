@@ -36,6 +36,5 @@
 
     <ItemGroup>
       <Folder Include="Models\ConnectionRelevant\" />
-      <Folder Include="Models\QuizRelevant\Entities\QuizModes\" />
     </ItemGroup>
 </Project>
