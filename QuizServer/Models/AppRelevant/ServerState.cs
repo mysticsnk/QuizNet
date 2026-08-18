@@ -10,4 +10,5 @@ public class ServerState
     public UserAccount? Account { get; set; }
     public ServerQuizSession? CurrentSession { get; set; }
     public List<ParticipantResult> ParticipantResults { get; set; } = new();
+    public Quiz? CurrentEditingQuiz { get; set; }
 }

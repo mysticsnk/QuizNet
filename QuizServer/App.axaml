@@ -2,11 +2,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="QuizServer.App"
              xmlns:local="using:QuizServer"
+             xmlns:viewModels="clr-namespace:QuizServer.ViewModels"
+             xmlns:views="clr-namespace:QuizServer.Views"
+             xmlns:converters="clr-namespace:QuizServer.Styles.Converters"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
+        
+        <DataTemplate DataType="viewModels:LoginViewModel">
+            <views:LoginView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="viewModels:DashboardWindowViewModel">
+            <views:DashboardWindowView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="viewModels:MainDashboardViewModel">
+            <views:MainDashboardView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="viewModels:QuizBrowserViewModel">
+            <views:QuizBrowserView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="viewModels:QuizDetailsViewModel">
+            <views:QuizDetailsView/>
+        </DataTemplate>
+        
+        <DataTemplate DataType="viewModels:QuestionEditorViewModel">
+            <views:QuestionEditorView/>
+        </DataTemplate>
+        
     </Application.DataTemplates>
   
          <Application.Styles>
@@ -15,10 +43,10 @@
              <StyleInclude Source="Styles/Colors.axaml"/>
              <StyleInclude Source="/Styles/Buttons.axaml"/>
              <StyleInclude Source="/Styles/Cards.axaml"/>
+             <StyleInclude Source="/Styles/Inputs.axaml"/>
 
          </Application.Styles>
-
          <Application.Resources>
-
+             <converters:BooleanIndicatorStringConverter x:Key="BooleanIndicatorStringConverter"/>
 
          </Application.Resources></Application>

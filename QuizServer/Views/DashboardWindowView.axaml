@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             xmlns:v="using:QuizServer.Views"
+             x:Class="QuizServer.Views.DashboardWindowView"
+             x:DataType="vm:DashboardWindowViewModel"
+             Background="{StaticResource BackgroundBrush}">
+    
+    <Grid RowDefinitions="60, *">
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderThickness="0,0,0,1" BorderBrush="#333A4A" Padding="20,0">
+            <Grid ColumnDefinitions="*, Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                    <TextBlock Text="QuizNet Server" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                    <TextBlock Text="|" Foreground="#333A4A" FontSize="18"/>
+                    <TextBlock Text="Authoritative Control Panel" FontSize="14" Foreground="{StaticResource SecondaryTextBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="16">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="6">
+                        <TextBlock Text="Logged in as:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding CurrentTeacherName}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Content="Logout" Command="{Binding ExecuteLogoutCommand}" Background="#2D1F23" Foreground="{StaticResource DangerBrush}" Padding="12,6" FontSize="13" CornerRadius="6"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="240, *">
+            
+            <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderThickness="0,0,1,0" BorderBrush="#333A4A" Padding="12">
+                <StackPanel Spacing="6">
+                    <Button Classes="primary" Content="📊 Dashboard" Command="{Binding NavigateToDashboardCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="📝 Tests" Command="{Binding NavigateToQuizzesCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="🛠 Constructor" Command="{Binding NavigateToConstructorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="⚙️ Sessions" Command="{Binding NavigateToSessionsCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="👥 Participants" Command="{Binding NavigateToParticipantsCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="📈 Reports" Command="{Binding NavigateToReportsCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                    <Button Classes="primary" Content="🔧 Settings" Command="{Binding NavigateToSettingsCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="12"/>
+                </StackPanel>
+            </Border>
+
+            <ContentControl Grid.Column="1" Content="{Binding CurrentWorkspaceViewModel}" Margin="24">
+            </ContentControl>
+        </Grid>
+    </Grid>
+</UserControl>

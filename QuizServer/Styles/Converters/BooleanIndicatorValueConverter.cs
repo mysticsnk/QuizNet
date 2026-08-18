@@ -1,0 +1,22 @@
+using System;
+using System.Globalization;
+using Avalonia.Data.Converters;
+
+namespace QuizServer.Styles.Converters;
+
+public class BooleanIndicatorStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is bool state)
+        {
+            return state ? "☑️" : "☐";
+        }
+        return "☐";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

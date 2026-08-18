@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Models.AppRelevant;
 using QuizServer.Models.DatabaseRelevant.Entities;
 using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Exceptions;
@@ -11,12 +12,13 @@ namespace QuizServer.Models.Services;
 
 public class UserRegistrationService : IUserRegistrationService
 {
-    public async Task VerifyAsync(string userName, string email, string passwordHash)
+    public async Task VerifyAsync(string email, string passwordHash)
     {
         IUserRepository userRepository = Program.AppHost.Services.GetRequiredService<IUserRepository>();
+        ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
+        
         UserAccount? foundUser =
-            (await userRepository.GetAllUsersAsync()).FirstOrDefault(user =>
-                user.UserName == userName && user.Email == email);
+            (await userRepository.GetAllUsersAsync()).FirstOrDefault(user => user.Email == email);
 
         if (foundUser == null) throw new UserNotFoundException();
 
@@ -24,6 +26,7 @@ public class UserRegistrationService : IUserRegistrationService
         {
             throw new InvalidPasswordException();
         }
+        serverState.Account = foundUser;
     }
 
     public async Task RegisterAsync(string userName, string email, string passwordHash)

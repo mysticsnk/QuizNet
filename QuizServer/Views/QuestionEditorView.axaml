@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             xmlns:app="using:QuizServer.Models.AppRelevant"
+             xmlns:models="using:QuizServer.Models.Entities.QuizRelevant"
+             xmlns:uiWrappers="clr-namespace:QuizServer.Styles.UI_Wrappers"
+             x:Class="QuizServer.Views.QuestionEditorView"
+             x:DataType="vm:QuestionEditorViewModel"
+             Background="{StaticResource BackgroundBrush}">
+    
+    <Grid ColumnDefinitions="350, *">
+        <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderThickness="0,0,1,0" BorderBrush="#333A4A" Padding="16">
+            <Grid RowDefinitions="Auto, *, Auto">
+                <TextBlock Grid.Row="0" Text="Questions Sequence" Classes="subtitle" Margin="0,0,0,16"/>
+                
+                <ListBox Grid.Row="1" ItemsSource="{Binding QuestionsList}" SelectedItem="{Binding SelectedItem}" Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type uiWrappers:QuestionListItem}">
+                            <Grid ColumnDefinitions="30, *">
+                                <TextBlock Grid.Column="0" Text="{Binding Number, StringFormat='{}{0}.'}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding DisplayTitle}" TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="2" Spacing="8" Margin="0,16,0,0">
+                    <Grid ColumnDefinitions="*, *">
+                        <Button Grid.Column="0" Classes="primary" Content="🔼 Move Up" Command="{Binding MoveUpCommand}" Margin="0,0,4,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Grid.Column="1" Classes="primary" Content="🔽 Move Down" Command="{Binding MoveDownCommand}" Margin="4,0,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </Grid>
+                    <Button Classes="primary" Content="➕ Add New Question" Command="{Binding AddQuestionCommand}" HorizontalAlignment="Stretch"/>
+                    <Button Background="#E74C3C" Foreground="White" Content="🗑️ Delete Question" Command="{Binding DeleteQuestionCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsQuestionSelected}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" RowDefinitions="*, Auto" Margin="24">
+            
+            <ScrollViewer Grid.Row="0" IsVisible="{Binding IsQuestionSelected}">
+                <Border Classes="card" Padding="24">
+                    <StackPanel Spacing="20">
+                        <TextBlock Text="Edit Question Context" Classes="title" FontSize="20" Margin="0"/>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label" Text="Question Statement Prompt Text"/>
+                            <TextBox Text="{Binding SelectedItem.UnderlyingQuestion.Title, Mode=TwoWay}" 
+                                     Watermark="Type the text content statement prompt here..."
+                                     TextInput="OnTitleTextInputChanged"/>
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*, *">
+                            <StackPanel Grid.Column="0" Spacing="6" Margin="0,0,12,0">
+                                <TextBlock Classes="label" Text="Points Multiplier Value"/>
+                                <TextBox Text="{Binding SelectedItem.UnderlyingQuestion.PointsWeight, Mode=TwoWay}" HorizontalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <TextBlock Classes="label" Text="Response Time Frame Window (Seconds)"/>
+                                <TextBox Text="{Binding SelectedItem.UnderlyingQuestion.TimeLimit.TotalSeconds, Mode=OneWay}" 
+                                         HorizontalContentAlignment="Center"
+                                         TextInput="OnTimeLimitInputChanged"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label" Text="Evaluation Strategy Pattern Type Classifier"/>
+                            <ComboBox ItemsSource="{Binding QuestionTypes}" SelectedItem="{Binding SelectedTypeName}" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="12" IsVisible="{Binding ShowOptionsEditor}">
+                            <TextBlock Classes="subtitle" Text="Configured Selection Response Options" Margin="0,12,0,0"/>
+                            
+                            <ItemsControl ItemsSource="{Binding SelectedItem.UnderlyingQuestion.Options}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:QuestionOption}">
+                                        <Grid ColumnDefinitions="40, *, Auto" Margin="0,4">
+                                            <Button Grid.Column="0" 
+                                                    Content="{Binding IsCorrect, Converter={StaticResource BooleanIndicatorStringConverter}}" 
+                                                    Click="OnOptionAnswerStateToggleClicked" 
+                                                    CommandParameter="{Binding}"
+                                                    HorizontalAlignment="Center"/>
+                                            
+                                            <TextBox Grid.Column="1" Text="{Binding TextContent, Mode=TwoWay}" VerticalContentAlignment="Center"/>
+                                            <Button Grid.Column="2" Content="🗑️" Command="{Binding $parent[UserControl].((vm:QuestionEditorViewModel)DataContext).RemoveOptionCommand}" CommandParameter="{Binding}" Margin="8,0,0,0" Background="Transparent"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,0">
+                                <TextBox Grid.Column="0" Text="{Binding NewOptionText, Mode=TwoWay}" Watermark="Provide clean addition option context target text label here..." VerticalContentAlignment="Center"/>
+                                <Button Grid.Column="1" Classes="primary" Content="➕ Add Choice" Command="{Binding AddOptionCommand}" Margin="8,0,0,0"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Spacing="12" IsVisible="{Binding ShowTrueFalseEditor}">
+                            <TextBlock Classes="subtitle" Text="Correct Response Evaluation Match Vector" Margin="0,12,0,0"/>
+                            <StackPanel Orientation="Horizontal" Spacing="40" HorizontalAlignment="Center" Margin="0,12">
+                                <RadioButton Content="True Correct Variant" GroupName="TFGroup" IsCheckedChanged="OnTrueRadioButtonChecked" IsChecked="{Binding SelectedItem.UnderlyingQuestion.Options[0].IsCorrect, Mode=OneWay}"/>
+                                <RadioButton Content="False Correct Variant" GroupName="TFGroup" IsCheckedChanged="OnFalseRadioButtonChecked" IsChecked="{Binding SelectedItem.UnderlyingQuestion.Options[1].IsCorrect, Mode=OneWay}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Spacing="12" IsVisible="{Binding ShowShortTextEditor}">
+                            <TextBlock Classes="subtitle" Text="Expected Text Character Match Criteria Verification Engine" Margin="0,12,0,0"/>
+                            <Border Background="#141722" Padding="16" CornerRadius="8">
+                                <StackPanel Spacing="12">
+                                    <TextBox Text="{Binding SelectedItem.UnderlyingQuestion.CorrectText, Mode=TwoWay}" Watermark="Provide the exact expected answer textual evaluation string value..."/>
+                                    <CheckBox IsChecked="{Binding SelectedItem.UnderlyingQuestion.CaseSensitive, Mode=TwoWay}" Content="Enforce exact lexical casing parsing comparison restrictions"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto, *" Margin="0,16,0,0">
+                <Button Grid.Column="0" Classes="primary" Background="LightCoral" Content="❌ Discard Draft and Exit Workspace" Command="{Binding CancelCommand}" BorderThickness="1" BorderBrush="#4F5A72" Padding="20,12" CornerRadius="10" MinHeight="42"/>
+                <Button Grid.Column="1" Classes="primary" Background="{StaticResource SuccessBrush}" Content="💾 Commit and Persist Quiz to Disk Database Storage" Command="{Binding SaveQuizCommand}" HorizontalAlignment="Right" Padding="32,12"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

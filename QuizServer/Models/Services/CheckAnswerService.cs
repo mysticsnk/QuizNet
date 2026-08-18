@@ -98,7 +98,7 @@ public class CheckAnswerService : ICheckAnswerService
         else if (question is ShortTextQuestion shortTextQuestion &&
                  answer is ShortTextAnswer shortTextAnswer)
         {
-            if (shortTextQuestion.CaseSensitive)
+            if (shortTextQuestion.CaseSensitive ?? false)
             {
                 if (shortTextAnswer.AnswerText != shortTextQuestion.CorrectText)
                 {

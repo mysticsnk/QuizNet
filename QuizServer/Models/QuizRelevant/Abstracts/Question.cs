@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.QuizRelevant.Entities.Questions;
 
@@ -12,7 +13,7 @@ namespace QuizServer.Models.QuizRelevant.Abstracts;
 [JsonDerivedType(typeof(SingleChoiceQuestion), "single")]
 [JsonDerivedType(typeof(ShortTextQuestion), "shortText")]
 [JsonDerivedType(typeof(TrueFalseQuestion), "trueFalse")]
-public abstract class Question
+public abstract class Question 
 {
     public Guid Id { get; set; }
     [JsonIgnore]
@@ -21,10 +22,12 @@ public abstract class Question
     public Quiz Quiz { get; set; }
     public TimeSpan TimeLimit { get; set; }
     public TimeSpan TimeSpent { get; set; }
-    public string Title { get; set; } = string.Empty;
+    public  string Title { get; set; } = string.Empty;
     public List<QuestionOption> Options { get; set; } = new();
     
     public byte[]? ImageBytes { get; init; }
+    public string? CorrectText { get; set; }
+    public bool? CaseSensitive { get; set; }
 
     public int PointsWeight { get; set; } = 100;
 

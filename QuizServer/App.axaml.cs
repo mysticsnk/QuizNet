@@ -9,6 +9,7 @@ using QuizServer.ViewModels;
 using QuizServer.Views;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Views;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Interfaces;
 

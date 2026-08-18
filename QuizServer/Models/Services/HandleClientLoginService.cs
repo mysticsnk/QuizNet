@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Exceptions;
 using QuizServer.Models.Services.Interfaces;
@@ -16,13 +18,14 @@ public class HandleClientLoginService : IHandleClientLoginService
         IUserRegistrationService registrationService = 
             Program.AppHost.Services.GetRequiredService<IUserRegistrationService>();
         SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
+        IUserRepository userRepository = Program.AppHost.Services.GetRequiredService<IUserRepository>();
         
         LoginResultMessage serverMessage = new LoginResultMessage();
 
 
         try
         {
-            await registrationService.VerifyAsync(loginMessage.UserName, loginMessage.Email,
+            await registrationService.VerifyAsync(loginMessage.Email,
                 loginMessage.PasswordHash);
         }
         catch (UserNotFoundException)
@@ -38,8 +41,11 @@ public class HandleClientLoginService : IHandleClientLoginService
             await server.SendMessageAsync(client, serverMessage);
         }
 
+        string userName = (await userRepository.GetAllUsersAsync())
+            .FirstOrDefault(u => u.Email == loginMessage.Email && u.PasswordHash == loginMessage.PasswordHash)
+            ?.UserName;
         UserAccount account =
-            new UserAccount(loginMessage.UserName, loginMessage.Email, loginMessage.PasswordHash);
+            new UserAccount(userName, loginMessage.Email, loginMessage.PasswordHash);
         await server.SendMessageAsync(client, serverMessage);
     }
 }

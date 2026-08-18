@@ -11,7 +11,7 @@ public class DummyHandleClientLoginService : IHandleClientLoginService
 {
     public Task HandleAsync(ClientLoginMessage loginMessage, ConnectedClient client)
     {
-        Console.WriteLine($"Received a login message from {loginMessage.UserName}");
+        Console.WriteLine($"Received a login message from user");
         return Task.CompletedTask;
     }
 }

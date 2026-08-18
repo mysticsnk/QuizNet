@@ -115,22 +115,22 @@ sealed class Program
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         await mode.AdvanceQuestionAsync();
         Console.WriteLine("Advanced to the next question");
         
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         await mode.AdvanceQuestionAsync(); 
         Console.WriteLine("Advanced to the next question");
@@ -153,6 +153,12 @@ sealed class Program
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<MainDashboardViewModel>();
+        services.AddTransient<QuizBrowserViewModel>();
+        services.AddTransient<QuizDetailsViewModel>();
+        services.AddTransient<QuestionEditorViewModel>();
+        
         services.AddTransient<PasswordValidationService>();
         services.AddTransient<UserValidationService>();
         services.AddTransient<IUserRepository, SqliteUserRepository>();
@@ -170,6 +176,9 @@ sealed class Program
         services.AddSingleton<IPortResolver, DummyPortResolver>();
         services.AddSingleton<SocketServer>();
         services.AddSingleton<ServerState>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<DashboardWindowViewModel>();
+        
         
         string connectionString =
             $"Data Source={Path.Combine(AppContext.BaseDirectory, "quiz.db")}";

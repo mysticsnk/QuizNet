@@ -90,7 +90,7 @@ sealed class Program
             else if (currentQuestion is MultiChoiceQuestion multiChoiceQuestion)
             {
                 List<Guid> options = new List<Guid>();
-                options.Add(multiChoiceQuestion.Options[0].Id);
+                options.Add(multiChoiceQuestion.Options[3].Id);
                 options.Add(multiChoiceQuestion.Options[1].Id);
                 MultiChoiceAnswer answer = new MultiChoiceAnswer(currentQuestion.Id, options);
                 

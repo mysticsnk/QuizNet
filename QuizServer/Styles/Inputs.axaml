@@ -1,0 +1,102 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Default text -->
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground"
+                Value="{StaticResource TextBrush}" />
+
+        <Setter Property="FontSize"
+                Value="15"/>
+    </Style>
+
+
+    <!-- Labels -->
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontWeight"
+                Value="SemiBold"/>
+
+        <Setter Property="Margin"
+                Value="0,0,0,6"/>
+    </Style>
+
+
+    <!-- Page title -->
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize"
+                Value="30"/>
+
+        <Setter Property="FontWeight"
+                Value="Bold"/>
+
+        <Setter Property="Margin"
+                Value="0,0,0,20"/>
+    </Style>
+
+
+    <!-- Section title -->
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize"
+                Value="20"/>
+
+        <Setter Property="FontWeight"
+                Value="SemiBold"/>
+
+        <Setter Property="Margin"
+                Value="0,12,0,12"/>
+    </Style>
+
+
+
+    <!-- TextBox -->
+
+    <Style Selector="TextBox">
+
+        <Setter Property="Background"
+                Value="{StaticResource SurfaceBrush}"/>
+
+        <Setter Property="Foreground"
+                Value="{StaticResource TextBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="#3A4254"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="CornerRadius"
+                Value="8"/>
+
+        <Setter Property="Padding"
+                Value="12"/>
+
+        <Setter Property="MinHeight"
+                Value="40"/>
+
+    </Style>
+
+
+
+    <!-- ComboBox -->
+
+    <Style Selector="ComboBox">
+
+        <Setter Property="Background"
+                Value="{StaticResource SurfaceBrush}"/>
+
+        <Setter Property="Foreground"
+                Value="{StaticResource TextBrush}"/>
+
+        <Setter Property="BorderBrush"
+                Value="#3A4254"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="CornerRadius"
+                Value="8"/>
+
+        <Setter Property="MinHeight"
+                Value="40"/>
+
+    </Style>
+</Styles>

@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             x:Class="QuizServer.Views.MainDashboardView"
+             x:DataType="vm:MainDashboardViewModel">
+    
+    <ScrollViewer>
+        <StackPanel Spacing="24">
+            <StackPanel Spacing="6">
+                <TextBlock Classes="title" Text="Welcome to QuizNet" Margin="0"/>
+                <TextBlock Text="Manage quizzes, evaluation sessions, and results generation metrics from one centralized local interface." 
+                           Foreground="{StaticResource SecondaryTextBrush}" FontSize="15"/>
+            </StackPanel>
+
+            <UniformGrid Columns="3" Rows="2" Margin="0,12,0,0">
+                <Button Command="{Binding ForwardToTestsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="📝 Quizzes" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Review, edit, or delete existing stored exam questions blueprints." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <Button Command="{Binding ForwardToConstructorCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="🛠 Constructor" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Build fresh polymorphic question sequences in volatile memory." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <Button Command="{Binding ForwardToSessionsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="⚙️ Sessions" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Spin up sockets and broadcast questions in synchronous or async mode." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <Button Command="{Binding ForwardToParticipantsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="👥 Participants" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Manage connected student lines and kick offending socket listeners." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <Button Command="{Binding ForwardToReportsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="📈 Reports" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Examine scoreboards, responses, audit trails, and data matrices." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <Button Command="{Binding ForwardToSettingsCommand}" Background="Transparent" BorderThickness="0" Padding="0" Margin="6">
+                    <Border Classes="card" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="🔧 Settings" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="Change network socket ports and default countdown thresholds." FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
+            </UniformGrid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

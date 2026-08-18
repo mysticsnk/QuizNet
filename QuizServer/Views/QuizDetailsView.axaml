@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             x:Class="QuizServer.Views.QuizDetailsView"
+             x:DataType="vm:QuizDetailsViewModel"
+             Background="{StaticResource BackgroundBrush}">
+    
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        
+        <Border Classes="card" 
+                Width="520" 
+                Padding="32" 
+                CornerRadius="12" 
+                Background="{StaticResource SurfaceBrush}">
+            
+            <StackPanel Spacing="24">
+                
+                <StackPanel Spacing="6" HorizontalAlignment="Center">
+                    <TextBlock Text="Create New Quiz" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="White" 
+                               HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="Enter a title for the new quiz template profile." 
+                               FontSize="13" 
+                               Foreground="{StaticResource SecondaryTextBrush}" 
+                               HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="Individual question sequences will be added in the next step." 
+                               FontSize="12" 
+                               Foreground="#6A7588" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="label" 
+                               Text="Quiz Title Designation" 
+                               FontSize="12" 
+                               FontWeight="Bold" 
+                               Foreground="{StaticResource PrimaryBrush}"/>
+                    
+                    <TextBox Text="{Binding QuizTitle, Mode=TwoWay}" 
+                             Watermark="e.g., Networking Midterm Exam" 
+                             FontSize="15"
+                             Padding="12"
+                             HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <Border Height="1" Background="#252B3A"/>
+
+                <Grid ColumnDefinitions="*, *">
+                    <Button Grid.Column="0" 
+                            Content="Cancel" 
+                            Command="{Binding CancelAndReturnCommand}" 
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#4F5A72"
+                            Foreground="#A0AABF"
+                            HorizontalAlignment="Left" 
+                            Padding="28,12"
+                            CornerRadius="8"
+                            MinHeight="42"/>
+                    
+                    <Button Grid.Column="1" 
+                            Classes="primary" 
+                            Content="Continue  ➔" 
+                            Command="{Binding ContinueToConstructorCommand}" 
+                            HorizontalAlignment="Right" 
+                            Padding="28,12"/>
+                </Grid>
+                
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

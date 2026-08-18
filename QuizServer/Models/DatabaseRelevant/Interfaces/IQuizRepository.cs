@@ -12,6 +12,7 @@ public interface IQuizRepository
     public Task<Quiz?> GetQuizByGuidAsync(Guid id);
     public Task CreateAsync(Quiz quiz);
     public Task<bool> DeleteAsync(Guid id);
+    public Task UpdateAsync(Quiz quiz);
     public Task<List<Question>> GetAllQuestionsAsync();
     public Task<List<QuestionOption>> GetAllQuestionOptionsAsync();
 }

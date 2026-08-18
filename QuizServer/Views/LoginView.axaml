@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             x:Class="QuizServer.Views.LoginView"
+             x:DataType="vm:LoginViewModel"
+             Background="{StaticResource BackgroundBrush}">
+    
+    <Grid>
+        <Border Classes="card" 
+                Width="420" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center">
+            
+            <StackPanel Spacing="18">
+                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                    <TextBlock Classes="title" 
+                               Text="{Binding TitleText}" 
+                               HorizontalAlignment="Center" 
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="QuizNet Authoritative Teacher Panel" 
+                               Foreground="{StaticResource SecondaryTextBrush}" 
+                               FontSize="13" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <Separator Background="#333A4A" Height="1" Margin="0,4"/>
+
+                <StackPanel Spacing="6" IsVisible="{Binding IsRegisterMode}">
+                    <TextBlock Classes="label" Text="Username"/>
+                    <TextBox Text="{Binding Username}" 
+                             Watermark="Enter a unique display name..."/>
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="label" Text="Email Address"/>
+                    <TextBox Text="{Binding Email}" 
+                             Watermark="teacher@university.edu"/>
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="label" Text="Password"/>
+                    <TextBox Text="{Binding Password}" 
+                             PasswordChar="●" 
+                             Watermark="••••••••••••"/>
+                </StackPanel>
+
+                <Border Background="#2D1F23" 
+                        BorderBrush="{StaticResource DangerBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="6" 
+                        Padding="12" 
+                        IsVisible="{Binding HasError}">
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="{StaticResource DangerBrush}" 
+                               FontSize="13" 
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <StackPanel Spacing="12" Margin="0,8,0,0">
+                    <Button Classes="primary" 
+                            Content="{Binding ActionButtonText}" 
+                            Command="{Binding ExecuteSubmitCommand}" 
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Background="Transparent" 
+                            BorderThickness="0"
+                            Foreground="{StaticResource PrimaryBrush}"
+                            Content="{Binding ToggleButtonText}" 
+                            Command="{Binding ToggleModeCommand}" 
+                            HorizontalAlignment="Center"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

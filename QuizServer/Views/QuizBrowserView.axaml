@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuizServer.ViewModels"
+             xmlns:app="using:QuizServer.Models.AppRelevant"
+             xmlns:entities="clr-namespace:QuizServer.Models.QuizRelevant.Entities"
+             x:Class="QuizServer.Views.QuizBrowserView"
+             x:DataType="vm:QuizBrowserViewModel">
+    
+    <Grid ColumnDefinitions="300, *">
+        
+        <Grid Grid.Column="0" RowDefinitions="Auto, *, Auto" Margin="0,0,16,0">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,16">
+                <TextBlock Classes="title" Text="Quizzes" Margin="0"/>
+                <TextBlock Text="Browse authoritative blueprints" FontSize="13" Foreground="{StaticResource SecondaryTextBrush}"/>
+            </StackPanel>
+
+            <ListBox Grid.Row="1" 
+                     ItemsSource="{Binding Quizzes}" 
+                     SelectedItem="{Binding SelectedQuiz}" 
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type entities:QuizListItem}">
+                        <Border Background="{StaticResource SurfaceBrush}" 
+                                CornerRadius="8" 
+                                Padding="16" 
+                                Margin="0,4"
+                                BorderThickness="1"
+                                BorderBrush="#333A4A">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="15" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding QuestionCount, StringFormat='{}{0} Questions'}" FontSize="13" Foreground="{StaticResource SecondaryTextBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="2" Spacing="8" Margin="0,16,0,0">
+                <Button Classes="primary" 
+                        Content="➕ Create Quiz" 
+                        Command="{Binding CreateQuizCommand}" 
+                        HorizontalAlignment="Stretch"/>
+                
+                <Button Background="{StaticResource DangerBrush}" 
+                        Foreground="White" 
+                        Content="🗑️ Delete Quiz" 
+                        Command="{Binding DeleteQuizCommand}" 
+                        HorizontalAlignment="Stretch"
+                        MinHeight="42"
+                        CornerRadius="10"/>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Column="1" Classes="card" Margin="16,0,0,0">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16" IsVisible="{Binding !IsQuizSelected}">
+                    <TextBlock Text="📚" FontSize="56" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Quiz Management" Classes="subtitle" HorizontalAlignment="Center" Margin="0"/>
+                    <TextBlock Text="Select an existing quiz entry from the left browser panel to edit, or initialize a clean blueprint profile instantly." 
+                               Foreground="{StaticResource SecondaryTextBrush}" 
+                               HorizontalAlignment="Center" 
+                               TextAlignment="Center"
+                               MaxWidth="340"
+                               TextWrapping="Wrap"/>
+                    
+                    <Button Classes="primary" 
+                            Content="Create New Quiz Profile" 
+                            Command="{Binding CreateQuizCommand}" 
+                            HorizontalAlignment="Center"
+                            Margin="0,12,0,0"/>
+                </StackPanel>
+
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16" IsVisible="{Binding IsQuizSelected}">
+                    <TextBlock Text="📄" FontSize="56" HorizontalAlignment="Center"/>
+                    
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding SelectedQuiz.Title}" Classes="subtitle" HorizontalAlignment="Center" Margin="0"/>
+                        <TextBlock Text="{Binding SelectedQuiz.QuestionCount, StringFormat='{}{0} Questions compiled inside database'}" 
+                                   Foreground="{StaticResource SecondaryTextBrush}" 
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
+                        <Button Classes="primary" 
+                                Content="📝 Edit Quiz Architecture" 
+                                Command="{Binding EditQuizCommand}" 
+                                Padding="24,12"/>
+                        
+                        <Button Background="Transparent" 
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource DangerBrush}"
+                                Foreground="{StaticResource DangerBrush}" 
+                                Content="Delete Record" 
+                                Command="{Binding DeleteQuizCommand}" 
+                                Padding="20,12"
+                                CornerRadius="10"
+                                MinHeight="42"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

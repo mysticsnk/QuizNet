@@ -4,8 +4,6 @@ namespace QuizServer.Models.QuizRelevant.Entities.Questions;
 
 public class ShortTextQuestion : Question
 {
-    public string CorrectText { get; set; } = string.Empty;
-    public bool CaseSensitive { get; set; }
     public string Placeholder { get; set; } = string.Empty;
     
     public ShortTextQuestion() : base() {}
@@ -21,7 +19,7 @@ public class ShortTextQuestion : Question
 
     public bool IsCorrectAnswer(string answer)
     {
-        if (CaseSensitive)
+        if (CaseSensitive ?? false)
         {
             return answer == CorrectText;
         }
