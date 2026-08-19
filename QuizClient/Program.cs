@@ -15,15 +15,13 @@ using QuizClient.Models.DatabaseRelevant.Entities;
 using QuizClient.Models.DatabaseRelevant.Interfaces;
 using QuizClient.Models.Entities;
 using QuizClient.Models.Entities.QuizRelevant;
-using QuizClient.Models.Helpers.Password;
-using QuizClient.Models.Interfaces;
 using QuizClient.Models.QuizRelevant.Abstracts;
 using QuizClient.Models.QuizRelevant.Entities.Questions;
-using QuizClient.Models.Services;
-using QuizClient.Models.Services.Interfaces;
 using QuizClient.Models.SessionRelevant;
 using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.UserRelevant;
+using QuizClient.Services;
+using QuizClient.Services.Interfaces;
 using QuizClient.ViewModels;
 
 namespace QuizClient;

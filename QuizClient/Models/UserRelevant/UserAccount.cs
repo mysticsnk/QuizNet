@@ -6,9 +6,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using QuizClient.Models.Helpers;
-using QuizClient.Models.Helpers.Password;
-using QuizClient.Models.Services.Interfaces;
 
 namespace QuizClient.Models.UserRelevant;
 

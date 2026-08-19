@@ -17,27 +17,6 @@
     </Design.DataContext>
 
     <StackPanel>
-        <Grid>
-            <Border Classes="card">
-
-                <StackPanel Spacing="12">
-
-                    <TextBlock
-                        Text="Current Session"
-                        FontSize="20"
-                        FontWeight="Bold"/>
-
-                    <TextBlock
-                        Text="Participants: 18"/>
-
-                    <Button
-                        Classes="primary"
-                        Content="Open"/>
-
-                </StackPanel>
-
-            </Border>
-        </Grid>
     </StackPanel>
     
 </Window>

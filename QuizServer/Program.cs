@@ -13,15 +13,13 @@ using QuizServer.Models.DatabaseRelevant.Entities;
 using QuizServer.Models.DatabaseRelevant.Interfaces;
 using QuizServer.Models.Entities;
 using QuizServer.Models.Entities.QuizRelevant;
-using QuizServer.Models.Helpers.Password;
-using QuizServer.Models.Interfaces;
 using QuizServer.Models.QuizRelevant.Abstracts;
 using QuizServer.Models.QuizRelevant.Entities.Questions;
 using QuizServer.Models.QuizRelevant.Entities.QuizModes;
-using QuizServer.Models.Services;
-using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.UserRelevant;
+using QuizServer.Services;
+using QuizServer.Services.Interfaces;
 using QuizServer.ViewModels;
 
 namespace QuizServer;
@@ -167,7 +165,7 @@ sealed class Program
         services.AddTransient<IAnswerLogger, DummyAnswerLogger>();
         services.AddTransient<ICheckAnswerService, CheckAnswerService>();
         
-        services.AddSingleton<IPortResolver, DummyPortResolver>();
+        services.AddSingleton<IPortResolverService, DummyPortResolverService>();
         services.AddSingleton<SocketServer>();
         services.AddSingleton<ServerState>();
         

@@ -9,11 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using QuizClient.Models.AppRelevant;
 using QuizClient.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizClient.Models.ConnectionRelevant.Entities.ServerMessages;
-using QuizClient.Models.Interfaces;
 using QuizClient.Models.QuizRelevant.Abstracts;
-using QuizClient.Models.Services.Interfaces;
 using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.UserRelevant;
+using QuizClient.Services.Interfaces;
 
 namespace QuizClient.Models;
 

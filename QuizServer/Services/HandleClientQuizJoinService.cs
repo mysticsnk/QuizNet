@@ -1,0 +1,69 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using QuizServer.Models.AppRelevant;
+using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
+using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
+using QuizServer.Models.DatabaseRelevant.Entities;
+using QuizServer.Models.DatabaseRelevant.Interfaces;
+using QuizServer.Models.Entities;
+using QuizServer.Models.Entities.QuizRelevant;
+using QuizServer.Models.SessionRelevant;
+using QuizServer.Services.Interfaces;
+
+namespace QuizServer.Services;
+
+public class HandleClientQuizJoinService : IHandleClientQuizJoinService
+{
+    public async Task<Participant> HandleAsync(ClientJoinQuizMessage joinQuizMessage, ConnectedClient client)
+    {
+        ServerState serverState = Program.AppHost.Services.GetRequiredService<ServerState>();
+        SocketServer server = Program.AppHost.Services.GetRequiredService<SocketServer>();
+        
+        QuizJoinResultMessage resultMessage = new QuizJoinResultMessage();
+        
+        if (serverState.CurrentSession == null)
+        {
+            resultMessage.IsSuccess = false;
+            resultMessage.AddError("No sessions currently active");
+            await server.SendMessageAsync(client, resultMessage);
+            return null;
+        }
+
+        if (!serverState.CurrentSession.IsCorrectPin(joinQuizMessage.Pin))
+        {
+            resultMessage.IsSuccess = false;
+            resultMessage.AddError("Invalid pin");
+            await server.SendMessageAsync(client, resultMessage);
+            return null;
+        }
+
+        resultMessage.IsSuccess = true;
+        
+        Participant newParticipant = new Participant(joinQuizMessage.UserName, joinQuizMessage.Account);
+        resultMessage.Participant = newParticipant;
+        
+        ClientQuizSession clientSession = new ClientQuizSession();
+        clientSession.Participant = newParticipant;
+        clientSession.Quiz = serverState.CurrentSession.Quiz;
+        resultMessage.ClientQuizSession = clientSession;
+
+        serverState.CurrentSession.Participants.Add(newParticipant);
+        serverState.ParticipantResults.Add(new ParticipantResult(newParticipant));
+        
+        client.Participant = newParticipant;
+
+        await server.SendMessageAsync(client, resultMessage);
+        try
+        {
+            await serverState.CurrentSession.Mode.SendCurrentQuestionAsync(newParticipant);
+        }
+        catch (NotSupportedException)
+        {
+            
+        }
+
+        return newParticipant;
+    }
+}

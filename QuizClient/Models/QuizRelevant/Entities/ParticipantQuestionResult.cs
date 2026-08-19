@@ -1,9 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using QuizClient.Models.SessionRelevant.Answers;
 using QuizClient.Models.QuizRelevant.Abstracts;
-using QuizClient.Models.Services.Interfaces;
 
 namespace QuizClient.Models.Entities.QuizRelevant;
 

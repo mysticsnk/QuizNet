@@ -41,4 +41,10 @@
     <ItemGroup>
       <ProjectReference Include="..\QuizClient\QuizClient.csproj" />
     </ItemGroup>
+
+    
+
+    <ItemGroup>
+      <Folder Include="Models\ConnectionRelevant\Interfaces\" />
+    </ItemGroup>
 </Project>

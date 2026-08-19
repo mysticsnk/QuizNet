@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizServer.Models.Entities;
-using QuizServer.Models.Interfaces;
 
 namespace QuizServer.ViewModels;
 

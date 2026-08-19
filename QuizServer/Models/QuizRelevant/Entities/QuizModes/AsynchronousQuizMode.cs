@@ -7,9 +7,9 @@ using QuizServer.Models.AppRelevant;
 using QuizServer.Models.DatabaseRelevant.Entities;
 using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.QuizRelevant.Abstracts;
-using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.SessionRelevant.Answers;
+using QuizServer.Services.Interfaces;
 
 namespace QuizServer.Models.QuizRelevant.Entities.QuizModes;
 

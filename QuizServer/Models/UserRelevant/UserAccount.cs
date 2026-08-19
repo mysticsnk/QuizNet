@@ -6,9 +6,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using QuizServer.Models.Helpers;
-using QuizServer.Models.Helpers.Password;
-using QuizServer.Models.Services.Interfaces;
 
 namespace QuizServer.Models.UserRelevant;
 

@@ -10,7 +10,6 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using QuizServer.Models.Entities;
-using QuizServer.Models.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.SessionRelevant;
 using QuizServer.Models.AppRelevant;
@@ -18,8 +17,8 @@ using QuizServer.Models.ConnectionRelevant.Entities.ClientMessages;
 using QuizServer.Models.ConnectionRelevant.Entities.ServerMessages;
 using QuizServer.Models.Entities.QuizRelevant;
 using QuizServer.Models.QuizRelevant.Abstracts;
-using QuizServer.Models.Services.Interfaces;
 using QuizServer.Models.UserRelevant;
+using QuizServer.Services.Interfaces;
 using ClientAnswerMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientAnswerMessage;
 using ClientLoginMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientLoginMessage;
 using ClientMessage = QuizServer.Models.ConnectionRelevant.Entities.ClientMessages.ClientMessage;
@@ -31,11 +30,11 @@ public class SocketServer
     private HttpListener _serverSocket { get; set; }
     public List<ConnectedClient> Clients { get; set; } = new ();
     
-    public SocketServer(IPortResolver resolver)
+    public SocketServer(IPortResolverService resolverService)
     {
         _serverSocket = new HttpListener();
 
-        string port = resolver.GetPort();
+        string port = resolverService.GetPort();
         _serverSocket.Prefixes.Add($"http://localhost:{port}/");
     }
     

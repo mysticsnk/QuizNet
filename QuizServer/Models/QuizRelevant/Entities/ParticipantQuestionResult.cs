@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.SessionRelevant.Answers;
 using QuizServer.Models.QuizRelevant.Abstracts;
-using QuizServer.Models.Services.Interfaces;
+using QuizServer.Services.Interfaces;
 
 namespace QuizServer.Models.Entities.QuizRelevant;
 

@@ -10,7 +10,6 @@ using QuizServer.Views;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using QuizServer.Models.Entities;
-using QuizServer.Models.Interfaces;
 
 namespace QuizServer;
 

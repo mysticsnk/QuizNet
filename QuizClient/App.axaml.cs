@@ -8,7 +8,6 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizClient.Models.Entities;
-using QuizClient.Models.Interfaces;
 using QuizClient.ViewModels;
 using QuizClient.Views;
 
